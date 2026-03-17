@@ -6,6 +6,8 @@ using UnityEngine.UI;
 
 public class MenuManager : MonoBehaviour
 {
+    public static MenuManager Instance { get; private set; }
+
     [Header  ("面板")]
     [SerializeField] private GameObject MenuPanel;
     [SerializeField] private GameObject Mask;
@@ -13,6 +15,8 @@ public class MenuManager : MonoBehaviour
     [SerializeField] private GameObject LevelUpPanel;
     [SerializeField] private GameObject ShopPanel;
     [SerializeField] private GameObject SkaterPanel;
+    [SerializeField] private GameObject SkaterCreatePanel;
+    [SerializeField] private GameObject SkaterChildPanel;
     [SerializeField] private GameObject SettingPanel;
 
     [Header  ("按钮")]
@@ -22,72 +26,71 @@ public class MenuManager : MonoBehaviour
     [SerializeField] private Button LevelUpBtn;
     [SerializeField] private Button ShopBtn;
     [SerializeField] private Button SkaterBtn;
+    [SerializeField] private Button SetActiveSkaterBtn;//打开子菜单
+    [SerializeField] private Button CreateSkaterBtn;
     [SerializeField] private Button SettingBtn;
+    [SerializeField] private Button MenuBtn;
 
     private GameObject currentPanel;
+    private Stack<GameObject> Panel = new Stack<GameObject>();
+
+    void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
 
     // Start is called before the first frame update
     void Start()
     {
-        OpenPanelBtn.onClick.AddListener(OpenPanel);
+        OpenPanelBtn.onClick.AddListener(() => OpenPanel(MenuPanel));
         ClosedPanelBtn.onClick.AddListener(ClosePanel);
-        CompertationBtn.onClick.AddListener(OpenCompPanel);
-        LevelUpBtn.onClick.AddListener(OpenLevelPanel);
-        ShopBtn.onClick.AddListener(OpenShopPanel);
-        SkaterBtn.onClick.AddListener(OpenSkaterPanel);
-        SettingBtn.onClick.AddListener(OpenSettingPanel);
+        CompertationBtn.onClick.AddListener(() => OpenPanel(CompPanel));
+        LevelUpBtn.onClick.AddListener(()=>OpenPanel(LevelUpPanel));
+        ShopBtn.onClick.AddListener(() => OpenPanel(ShopPanel));
+        SkaterBtn.onClick.AddListener(() => OpenPanel(SkaterPanel));
+        SettingBtn.onClick.AddListener(() => OpenPanel(SettingPanel));
+        SetActiveSkaterBtn.onClick.AddListener(() => OpenPanel(SkaterChildPanel));
+        CreateSkaterBtn.onClick.AddListener(() => OpenPanel(SkaterCreatePanel));
+        MenuBtn.onClick.AddListener(() => OpenPanel(MenuPanel));
     }
 
-    private void OpenPanel()
+    public void OpenPanel(GameObject newPanel)
     {
+        OpenPanelBtn.enabled = false;
         GameManager.Instance?.PauseGame();
-        Mask.gameObject.SetActive(true);
-        MenuPanel.SetActive(true);
-        currentPanel = MenuPanel;
+        Mask.SetActive(true);
+        if (currentPanel != null)
+        {
+            Panel.Push(currentPanel);
+            currentPanel.SetActive(false);
+        }
+        newPanel.SetActive(true);
+        currentPanel = newPanel;
     }
 
-    private void ClosePanel()
+    public void ClosePanel()
     {
         currentPanel.SetActive(false);
-        if (currentPanel != MenuPanel) { OpenPanel(); }
-        else { 
+        if (Panel.Count > 0)
+        {
+            currentPanel = Panel.Pop();  // 拿出上一个
+            currentPanel.SetActive(true);
+        }
+        else
+        {
             Mask.SetActive(false);
+            OpenPanelBtn.enabled = true;
+            currentPanel = null;
             GameManager.Instance?.ResumeGame();
         }
     }
 
-    private void OpenCompPanel()
-    {
-        currentPanel.SetActive(false);
-        CompPanel.SetActive(true);
-        currentPanel = CompPanel;
-    }
-
-    private void OpenLevelPanel()
-    {
-        currentPanel.SetActive(false);
-        LevelUpPanel.SetActive(true);
-        currentPanel = LevelUpPanel;
-    }
-
-    private void OpenShopPanel()
-    {
-        currentPanel.SetActive(false);
-        ShopPanel.SetActive(true);
-        currentPanel = ShopPanel;
-    }
-
-    private void OpenSkaterPanel()
-    {
-        currentPanel.SetActive(false);
-        SkaterPanel.SetActive(true);
-        currentPanel = SkaterPanel;
-    }
-
-    private void OpenSettingPanel()
-    {
-        currentPanel.SetActive(false);
-        SettingPanel.SetActive(true);
-        currentPanel = SettingPanel;
-    }
 }

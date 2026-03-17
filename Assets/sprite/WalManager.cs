@@ -47,7 +47,7 @@ public class WalManager : MonoBehaviour
         while (true)
         {
             yield return new WaitForSeconds(Random.Range(1f, 3f));
-            if (GameManager.Instance.isPause) continue;
+            if (GameManager.isPause) continue;
             int count = Random.Range(1, 5);
             for (int i = 0; i < count; i++)
             {

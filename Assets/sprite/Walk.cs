@@ -74,7 +74,7 @@ public class Walk : MonoBehaviour
     void Update()
     {
         
-        if (GameManager.Instance.isPause) return;
+        if (GameManager.isPause) return;
 
         if (isCustom)
         {
