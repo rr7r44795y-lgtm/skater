@@ -331,9 +331,9 @@ public class GameManager : MonoBehaviour
 
     private void AdvanceDay()
     {
+        if (currentSaveData.gameDay == 1) CheckCompetitions();
         currentSaveData.gameDay += 1;
         if(currentSaveData.createTime!=0)currentSaveData.createTime--;
-        if(currentSaveData.gameDay==1) CheckCompetitions();
         CheckActiveComps();
         LevelUPManager.Instance?.CheckUpgrade();
 

@@ -49,7 +49,7 @@ public class ChooseSkaterUI : MonoBehaviour
 
         foreach (var s in GameManager.Instance.currentSaveData.Skaters)
         {
-            if (s.age <= comp.MaxAge && s.age >= comp.MiniAge && s.sex == comp.sexType)
+            if (s.age <= comp.MaxAge && s.age >= comp.MiniAge && s.sex == comp.sexType&&!s.isCompeting)
             {
                 GameObject card = Instantiate(skaterPrafab, Root.transform);
                 card.GetComponent<SkaterCard>().InitForCompetation(s, this);
@@ -69,53 +69,83 @@ public class ChooseSkaterUI : MonoBehaviour
             $"确定派遣 {names}参赛吗？",
             "确定", "取消",
             () => {
-                if (GameManager.Instance.currentSaveData.money >= comp.fee * selectedList.Count)
+                if (IsAlreadyRegistered())
                 {
-                    GameManager.Instance.currentSaveData.money -= comp.fee * selectedList.Count;
-
-                    if (GameManager.Instance.currentSaveData.gameMonth == comp.month)
-                    {
-                        ActiveComp ac = new ActiveComp();
-                        ac.compID = comp.compID;
-                        ac.compName = comp.name;
-                        ac.compType = comp.compType;
-                        ac.award = comp.award;
-                        ac.remainingDays = 30;
-                        foreach (var s in selectedList)
-                        {
-                            s.isCompeting = true;
-                            ac.skaterNames.Add(s.name);
-                        }
-                        GameManager.Instance.currentSaveData.activeComps.Add(ac);
-                        List<string> msg = new List<string> { "派遣成功！" };
-                        PopupManager.Instance.MessagePop(msg);
-                    }
-                    else
-                    {
-                        foreach (var s in selectedList)
-                        {
-                            ScheduledComp sc = new ScheduledComp();
-                            sc.compID = comp.compID;
-                            sc.compName = comp.name;
-                            sc.compMonth = comp.month;
-                            sc.compType = comp.compType;
-                            sc.award = comp.award;
-                            sc.skaterName = s.name;
-                            GameManager.Instance.currentSaveData.scheduledComps.Add(sc);
-                        }
-                        List<string> msg = new List<string> { "预约成功！选手会在当月自动出发！" };
-                        PopupManager.Instance.MessagePop(msg);
-                    }
+                    List<string> tip = new List<string> { "当前报名人选中已经有人报过这场比赛啦!" };
+                    PopupManager.Instance.MessagePop(tip);
+                    return;
                 }
                 else
                 {
-                    List<string> msg = new List<string> { "金钱不足！" };
-                    PopupManager.Instance.MessagePop(msg);
+                    if (GameManager.Instance.currentSaveData.money >= comp.fee * selectedList.Count)
+                    {
+                        GameManager.Instance.currentSaveData.money -= comp.fee * selectedList.Count;
+
+                        if (GameManager.Instance.currentSaveData.gameMonth == comp.month)
+                        {
+                            ActiveComp ac = new ActiveComp();
+                            ac.compID = comp.compID;
+                            ac.compName = comp.name;
+                            ac.compType = comp.compType;
+                            ac.award = comp.award;
+                            ac.remainingDays = 30;
+                            foreach (var s in selectedList)
+                            {
+                                s.isCompeting = true;
+                                ac.skaterNames.Add(s.name);
+                            }
+                            GameManager.Instance.currentSaveData.activeComps.Add(ac);
+                            List<string> msg = new List<string> { "派遣成功！" };
+                            PopupManager.Instance.MessagePop(msg);
+                        }
+                        else
+                        {
+                            foreach (var s in selectedList)
+                            {
+                                ScheduledComp sc = new ScheduledComp();
+                                sc.compID = comp.compID;
+                                sc.compName = comp.name;
+                                sc.compMonth = comp.month;
+                                sc.compType = comp.compType;
+                                sc.award = comp.award;
+                                sc.skaterName = s.name;
+                                GameManager.Instance.currentSaveData.scheduledComps.Add(sc);
+                            }
+                            List<string> msg = new List<string> { "预约成功！选手会在当月自动出发！" };
+                            PopupManager.Instance.MessagePop(msg);
+                        }
+                    }
+                    else
+                    {
+                        List<string> msg = new List<string> { "金钱不足！" };
+                        PopupManager.Instance.MessagePop(msg);
+                    }
                 }
                 selectedList.Clear();
                 MenuManager.Instance.ClosePanel();
             },
             () => { }
         );
+    }
+
+    // 检查选手是否已经报名了某场比赛（包括 scheduled 和 active）
+    //todo:返回已报名的选手名字
+    private bool IsAlreadyRegistered()
+    {
+        var save = GameManager.Instance.currentSaveData;
+        foreach (var s in selectedList)
+        {
+            foreach (var sc in save.scheduledComps)
+            {
+                if (sc.compID == comp.compID && sc.skaterName == s.name)
+                    return true;
+            }
+            foreach (var ac in save.activeComps)
+            {
+                if (ac.compID == comp.compID && ac.skaterNames.Contains(s.name))
+                    return true;
+            }
+        }
+        return false;
     }
 }

@@ -2,6 +2,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System.Diagnostics;
+using System.Collections.Generic;
 
 public class UIManager : MonoBehaviour
 {
@@ -46,5 +47,7 @@ public class UIManager : MonoBehaviour
     private void OnClicked()
     {
         if (GameManager.Instance != null) GameManager.Instance.SaveAllData();
+        List<string> msg = new List<string> { "保存成功!" };
+        PopupManager.Instance.MessagePop(msg);
     }
 }

@@ -44,7 +44,7 @@ public class LevelUPManager : MonoBehaviour
     }
 
     private ClubType currentType;
-    private bool LevelUp = false;
+    public static bool LevelUp = false;
     // Start is called before the first frame update
     void Start()
     {
@@ -88,6 +88,7 @@ public class LevelUPManager : MonoBehaviour
     //用来放在UI给玩家提示的
     public void CheckIsUpgrade()
     {
+        LevelUp = false;
         var club = GameManager.Instance.currentSaveData.club;
         switch (club.clubLevel)
         {

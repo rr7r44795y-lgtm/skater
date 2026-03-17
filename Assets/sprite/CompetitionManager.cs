@@ -148,6 +148,15 @@ public class CompetitionManager : MonoBehaviour
             {
                 GameManager.Instance.currentSaveData.money += comp.award;
                 S.fans += 500;
+                var club = GameManager.Instance.currentSaveData.club;
+                switch (comp.compType)
+                {
+                    case CompType.Local: club.AwardLocal++; break;
+                    case CompType.District: club.AwardDistrict++; break;
+                    case CompType.Provincial: club.AwardProvincial++; break;
+                    case CompType.National: club.AwardNational++; break;
+                    case CompType.International: club.AwardInternational++; break;
+                }
             }
             else if (rank == 2)
             {
@@ -164,22 +173,7 @@ public class CompetitionManager : MonoBehaviour
                 S.fans += 10;
             }
 
-            if (rank == 1)
-            {
-                GameManager.Instance.currentSaveData.money += comp.award;
-                S.fans += 500;
-                // 加获奖计数
-                var club = GameManager.Instance.currentSaveData.club;
-                switch (comp.compType)
-                {
-                    case CompType.Local: club.AwardLocal++; break;
-                    case CompType.District: club.AwardDistrict++; break;
-                    case CompType.Provincial: club.AwardProvincial++; break;
-                    case CompType.National: club.AwardNational++; break;
-                    case CompType.International: club.AwardInternational++; break;
-                }
-            }
-            S.LiveList.Add($"{comp.compName} 第{rank}名 得分:{scores[S]:F1}");
+            S.LiveList.Add($"{comp.compName} 第{rank}名 得分:{scores[S]:F1}\n");
         }
 
         // ===== 6. 弹窗 =====
@@ -187,7 +181,7 @@ public class CompetitionManager : MonoBehaviour
         for (int i = 0; i < allSkaters.Count; i++)
         {
             string marker = mySkaters.Contains(allSkaters[i]) ? "★" : "";
-            msg += ($"第{i + 1}名: {allSkaters[i].name} {scores[allSkaters[i]]:F1}分 {marker}\n");
+            msg += ($"第{i + 1}名: {scores[allSkaters[i]]:F1}分 {marker} {allSkaters[i].name}\n");
         }
         PopupManager.Instance.CompPop(comp.compName,msg);
     }
@@ -286,6 +280,5 @@ public class CompetitionManager : MonoBehaviour
         }
         GameManager.Instance.currentSaveData.money += comp.award;
         PopupManager.Instance.MessagePop(resultMsg);
-        GameManager.Instance.SaveAllData();
     }
 }

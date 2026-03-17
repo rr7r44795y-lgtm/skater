@@ -31,6 +31,9 @@ public class MenuManager : MonoBehaviour
     [SerializeField] private Button SettingBtn;
     [SerializeField] private Button MenuBtn;
 
+    [Header("ºìµãºìµã£¡£¡")]
+    [SerializeField] private GameObject RedTips;
+
     private GameObject currentPanel;
     private Stack<GameObject> Panel = new Stack<GameObject>();
 
@@ -60,6 +63,13 @@ public class MenuManager : MonoBehaviour
         SetActiveSkaterBtn.onClick.AddListener(() => OpenPanel(SkaterChildPanel));
         CreateSkaterBtn.onClick.AddListener(() => OpenPanel(SkaterCreatePanel));
         MenuBtn.onClick.AddListener(() => OpenPanel(MenuPanel));
+    }
+
+    void Update()
+    {
+        LevelUPManager.Instance?.CheckIsUpgrade();
+        if (LevelUPManager.LevelUp && !RedTips.activeSelf) RedTips.SetActive(true);
+        else if (!LevelUPManager.LevelUp && RedTips.activeSelf) RedTips.SetActive(false);
     }
 
     public void OpenPanel(GameObject newPanel)

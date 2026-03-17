@@ -121,6 +121,7 @@ public class PopupManager : MonoBehaviour
       }else
       {
         messageActive = false;
+        MaskPanel.SetActive(false);
         GameManager.Instance?.ResumeGame();
         currentMessage =null;
       }
@@ -193,12 +194,14 @@ public class PopupManager : MonoBehaviour
         skaterInfoPanel.SetActive(true);
         MaskPanel.SetActive(true);
     }
+    #endregion
 
+    #region 公共方法
     private void ClosedPanel()
     {
         skaterInfoPanel.SetActive(false);
         ChoosePop.SetActive(false);
-        if (compInstance != null) Destroy(compInstance);
+        if (compInstance != null) { Destroy(compInstance); compInstance = null; }
         MaskPanel.SetActive(false);
         GameManager.Instance?.ResumeGame();
         currentSkater = null;
@@ -241,14 +244,17 @@ public class PopupManager : MonoBehaviour
     }
     #endregion
 
+    #region 比赛弹窗
     public void CompPop(string name,string msg)
     {
+        GameManager.Instance?.PauseGame();
         MaskPanel.SetActive(true);
         compInstance = Instantiate(CompPopup, transform);
         compInstance.GetComponent<CompResultUI>().Init(name, msg);
     }
+    #endregion
 
     #region 多选择弹窗,没写，别管了，嗯……难道这里传预制体列表比较好吗
-   
+
     #endregion
 }
