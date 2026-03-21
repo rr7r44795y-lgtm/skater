@@ -6,6 +6,28 @@ using UnityEngine.UI;
 using Image = UnityEngine.UI.Image;
 using static System.Net.Mime.MediaTypeNames;
 using Random = UnityEngine.Random;
+using TMPro;
+
+[Serializable]
+public class JumpRotationData
+{
+    public int rotation;
+    public float baseScore;
+    public int staminaCost;
+}
+
+[Serializable]
+public class JumpConfig
+{
+    public jumpType jumpName;
+    public List<JumpRotationData> rotations;
+}
+
+[Serializable]
+public class JumpConfigList
+{
+    public List<JumpConfig> JumpConfigs;
+}
 
 public class Walk : MonoBehaviour
 {
@@ -287,19 +309,77 @@ public class Walk : MonoBehaviour
         switch (Type)
         {
             case trainType.jump:
-                skater.jump += num;
-                PopupManager.Instance?.TMProPop(skater.name, "跳跃", num);
-                skater.stamina -= 10;
-                break;
+                {
+                    if (skater.jumpTypes.Count < 8)
+                    {
+                        jumpType[] allJumps = { jumpType.Toeloop, jumpType.Salchow, jumpType.Loop,
+                                jumpType.Flip, jumpType.Lutz, jumpType.Axel };
+
+                        // 找出还没学会的
+                        List<jumpType> unlearned = new List<jumpType>();
+                        foreach (var j in allJumps)
+                        {
+                            bool known = false;
+                            foreach (var owned in skater.jumpTypes)
+                            {
+                                if (owned.jumpName == j) { known = true; break; }
+                            }
+                            if (!known) unlearned.Add(j);
+                        }
+
+                        // 有没学的就骰概率
+                        if (unlearned.Count > 0 && Random.Range(0f, 1f) < 0.3f)
+                        {
+                            jumpType learned = unlearned[Random.Range(0, unlearned.Count)];
+                            skater.jumpTypes.Add(new JumpData(learned, 1, 2, 8, 4f));
+                            List<string> msg = new List<string> { $"{skater.name}学会了{learned}!" };
+                            PopupManager.Instance?.MessagePop(msg);
+                            break;
+                        }
+                    }
+                    else if (skater.jumpTypes.Count >= 8 && Random.Range(0f, 1f) < 0.3f)
+                    {
+                        // 找没满级的跳跃
+                        List<JumpData> canLevel = new List<JumpData>();
+                        foreach (var j in skater.jumpTypes)
+                        {
+                            if (j.rotation < j.maxRotation) canLevel.Add(j);
+                        }
+                        if (canLevel.Count > 0)
+                        {
+                            JumpData picked = canLevel[Random.Range(0, canLevel.Count)];
+                            picked.exp += num;
+                            if (picked.exp >= picked.expToNext)
+                            {
+                                RotationLvUP(skater, picked.jumpName);
+                                List<string> msg = new List<string> { $"{skater.name}的{picked.jumpName}升到{picked.rotation}圈!" };
+                            }
+                            break;
+                        }
+                    }
+                    if (Random.Range(0f, 1f) < 0.5f)
+                    {
+                        skater.jump += num;
+                        skater.stamina -= 10;
+                        ShowPop($"jump+{num}");
+                    }
+                    break;
+                }
             case trainType.spin:
-                skater.spin += num;
-                PopupManager.Instance?.TMProPop(skater.name, "旋转", num);
-                skater.stamina -= 10;
+                if (Random.Range(0f, 1f) < 0.5f)
+                {
+                    skater.spin += num;
+                    skater.stamina -= 10;
+                    ShowPop($"spin+{num}");
+                }
                 break;
             case trainType.dance:
-                skater.dance += num;
-                PopupManager.Instance?.TMProPop(skater.name, "舞蹈", num);
-                skater.stamina -= 10;
+                if (Random.Range(0f, 1f) < 0.5f)
+                {
+                    skater.dance += num;
+                    skater.stamina -= 10;
+                    ShowPop($"dance+{num}");
+                }
                 break;
         }
     }
@@ -311,7 +391,7 @@ public class Walk : MonoBehaviour
         skater.current = currentType.relax;
         skater.stamina = Mathf.Min(skater.stamina + 10, 100);
         if (skater.stamina == 100) skater.current = currentType.training;
-        PopupManager.Instance?.TMProPop(skater.name, "体力", 10);
+        if (skater.stamina > 100) skater.stamina = 100;
     }
     #endregion
 
@@ -324,6 +404,64 @@ public class Walk : MonoBehaviour
     private void OnClicked()
     {
         PopupManager.Instance?.SkaterInfoPop(skater);
+    }
+    #endregion
+
+    #region 圈数升级
+    private void RotationLvUP(Skater s,jumpType jump)
+    {
+        JumpData currentJump=null;
+        foreach (var item in s.jumpTypes)
+        {
+            if (item.jumpName == jump)
+            {
+                currentJump = item;
+                break;
+            }
+        }
+
+        if (currentJump == null) return;
+        currentJump.rotation++;
+
+        JumpRotationData newData = CompetitionManager.Instance.GetJumpRotationData(jump, currentJump.rotation);
+        if (newData != null)
+        {
+            currentJump.baseScore = newData.baseScore;
+            currentJump.staminaCost = newData.staminaCost;
+        }
+
+        // 重置经验
+        currentJump.exp = 0;
+        currentJump.expToNext += 100;
+
+    }
+    #endregion
+
+    #region 信息显示
+    [Header("属性增长弹窗")]
+    Queue<string> msgQueue = new Queue<string>();
+
+    [SerializeField] private TextMeshProUGUI popText;
+
+    private bool isShowing = false;
+
+    public void ShowPop(string msg)
+    {
+        msgQueue.Enqueue(msg);
+        if (!isShowing) StartCoroutine(PopLoop());
+    }
+
+    IEnumerator PopLoop()
+    {
+        isShowing = true;
+        while (msgQueue.Count > 0)
+        {
+            popText.text = msgQueue.Dequeue();
+            popText.gameObject.SetActive(true);
+            yield return new WaitForSeconds(2f);
+        }
+        popText.gameObject.SetActive(false);
+        isShowing = false;
     }
     #endregion
 }

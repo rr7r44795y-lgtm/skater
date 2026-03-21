@@ -1,0 +1,204 @@
+{
+  "JumpConfigs": [
+    {
+      "jumpName": 0,
+      "rotations": [
+        {
+          "rotation": 1,
+          "baseScore": 0.4,
+          "staminaCost": 0
+        },
+        {
+          "rotation": 2,
+          "baseScore": 1.3,
+          "staminaCost": 5
+        },
+        {
+          "rotation": 3,
+          "baseScore": 4.2,
+          "staminaCost": 14
+        },
+        {
+          "rotation": 4,
+          "baseScore": 9.5,
+          "staminaCost": 22
+        }
+      ]
+    },
+    {
+      "jumpName": 1,
+      "rotations": [
+        {
+          "rotation": 1,
+          "baseScore": 0.4,
+          "staminaCost": 0
+        },
+        {
+          "rotation": 2,
+          "baseScore": 1.3,
+          "staminaCost": 5
+        },
+        {
+          "rotation": 3,
+          "baseScore": 4.3,
+          "staminaCost": 15
+        },
+        {
+          "rotation": 4,
+          "baseScore": 9.7,
+          "staminaCost": 23
+        }
+      ]
+    },
+    {
+      "jumpName": 2,
+      "rotations": [
+        {
+          "rotation": 1,
+          "baseScore": 0.5,
+          "staminaCost": 0
+        },
+        {
+          "rotation": 2,
+          "baseScore": 1.7,
+          "staminaCost": 6
+        },
+        {
+          "rotation": 3,
+          "baseScore": 4.9,
+          "staminaCost": 16
+        },
+        {
+          "rotation": 4,
+          "baseScore": 10.5,
+          "staminaCost": 25
+        }
+      ]
+    },
+    {
+      "jumpName": 3,
+      "rotations": [
+        {
+          "rotation": 1,
+          "baseScore": 0.5,
+          "staminaCost": 0
+        },
+        {
+          "rotation": 2,
+          "baseScore": 1.8,
+          "staminaCost": 6
+        },
+        {
+          "rotation": 3,
+          "baseScore": 5.3,
+          "staminaCost": 17
+        },
+        {
+          "rotation": 4,
+          "baseScore": 11.0,
+          "staminaCost": 26
+        }
+      ]
+    },
+    {
+      "jumpName": 4,
+      "rotations": [
+        {
+          "rotation": 1,
+          "baseScore": 0.6,
+          "staminaCost": 0
+        },
+        {
+          "rotation": 2,
+          "baseScore": 2.1,
+          "staminaCost": 7
+        },
+        {
+          "rotation": 3,
+          "baseScore": 5.9,
+          "staminaCost": 18
+        },
+        {
+          "rotation": 4,
+          "baseScore": 11.5,
+          "staminaCost": 28
+        }
+      ]
+    },
+    {
+      "jumpName": 5,
+      "rotations": [
+        {
+          "rotation": 1,
+          "baseScore": 1.1,
+          "staminaCost": 0
+        },
+        {
+          "rotation": 2,
+          "baseScore": 3.3,
+          "staminaCost": 8
+        },
+        {
+          "rotation": 3,
+          "baseScore": 8.0,
+          "staminaCost": 20
+        },
+        {
+          "rotation": 4,
+          "baseScore": 12.5,
+          "staminaCost": 30
+        }
+      ]
+    },
+    {
+      "jumpName": 6,
+      "rotations": [
+        {
+          "rotation": 1,
+          "baseScore": 1.2,
+          "staminaCost": 0
+        },
+        {
+          "rotation": 2,
+          "baseScore": 1.8,
+          "staminaCost": 3
+        },
+        {
+          "rotation": 3,
+          "baseScore": 2.6,
+          "staminaCost": 5
+        },
+        {
+          "rotation": 4,
+          "baseScore": 3.2,
+          "staminaCost": 8
+        }
+      ]
+    },
+    {
+      "jumpName": 7,
+      "rotations": [
+        {
+          "rotation": 1,
+          "baseScore": 1.8,
+          "staminaCost": 0
+        },
+        {
+          "rotation": 2,
+          "baseScore": 2.6,
+          "staminaCost": 2
+        },
+        {
+          "rotation": 3,
+          "baseScore": 3.3,
+          "staminaCost": 4
+        },
+        {
+          "rotation": 4,
+          "baseScore": 3.9,
+          "staminaCost": 6
+        }
+      ]
+    }
+  ]
+}

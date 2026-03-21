@@ -1,14 +1,51 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 using Random = UnityEngine.Random;
+
+    #region skill配置
+//这里是skill配置，gameManager是skater里的skill
+[Serializable]
+public class skillList
+{
+    public List<skillData> SkillInfo;
+}
+
+[Serializable]
+public class skillData
+{
+    public string skillID;
+    public string skillName;
+    public skillType Type;
+    public jumpType matchJump;
+    public List<SkillLevelData> levels;
+    public string description;
+}
+
+[Serializable]
+public class SkillLevelData
+{
+    public float triggerRate;//触发概率
+    public float number;//数值
+}
+
+[Serializable]
+public enum skillType
+{
+    stamina, jump, step, score
+}
+#endregion
 
 public class CompetitionManager : MonoBehaviour
 {
     public static CompetitionManager Instance { get; private set; }
     private CompetitionList compData;
+    private skillList SkillData;
+    private JumpConfigList jumpConfigData;
 
+    #region 初始化
     void Awake()
     {
         if (Instance == null)
@@ -16,20 +53,26 @@ public class CompetitionManager : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
             LoadCompetitions();
+            LoadSkill();
+            jumpConfig();
         }
         else
         {
             Destroy(gameObject);
         }
     }
+    #endregion
 
+    #region 竞赛读取
     private void LoadCompetitions()
     {
         TextAsset json = Resources.Load<TextAsset>("Competitions");
         if (json != null)
             compData = JsonUtility.FromJson<CompetitionList>(json.text);
     }
+    #endregion
 
+    #region 比赛开始
     public void SettleCompetition(List<Skater> mySkaters, ActiveComp comp)
     {
         if (comp.compType == CompType.Exhibition)
@@ -87,7 +130,21 @@ public class CompetitionManager : MonoBehaviour
 
             foreach (var jump in program)
             {
-                S.stamina -= jump.staminaCost;
+                float currentBase = jump.baseScore;
+                int currentCost = jump.staminaCost;
+
+                // 超绝爆发：概率提升一圈
+                if (jump.rotation < jump.maxRotation && Random.Range(0f, 1f) < 0.05f)
+                {
+                    JumpRotationData upData = CompetitionManager.Instance.GetJumpRotationData(jump.jumpName, jump.rotation + 1);
+                    if (upData != null)
+                    {
+                        currentBase = upData.baseScore;
+                        currentCost = upData.staminaCost;
+                    }
+                }
+
+                S.stamina -= currentCost;
 
                 // 体力影响成功率
                 float staminaPenalty = 0f;
@@ -96,9 +153,20 @@ public class CompetitionManager : MonoBehaviour
 
                 // 技能
                 float skillBonus = 0f;
-                // TODO: skill改成Class后再填
+                float extraScore = 0f;
+                ApplySkills(S, jump, ref skillBonus, ref extraScore);
 
-                float finalK = k + skillBonus + staminaPenalty;
+                //属性
+                float attrBonus = 0f;
+                if (jump.jumpName <= jumpType.Axel)
+                    attrBonus = S.jump * 0.0001f;
+                else if (jump.jumpName == jumpType.Spin)
+                    attrBonus = S.spin * 0.0001f;
+                else if (jump.jumpName == jumpType.StepSequence)
+                    attrBonus = S.dance * 0.0001f;
+
+                if (attrBonus > 0.3f) attrBonus = 0.3f;
+                float finalK = k + skillBonus + staminaPenalty + attrBonus;
 
                 float roll = Random.Range(0f, 1f);
                 float goe = 0f;
@@ -124,7 +192,7 @@ public class CompetitionManager : MonoBehaviour
                         goe = 5f;
                 }
 
-                float jumpScore = jump.baseScore * (1f + goe / 10f);
+                float jumpScore = (currentBase + extraScore) * (1f + goe / 10f);
                 totalScore += jumpScore;
             }
 
@@ -185,7 +253,9 @@ public class CompetitionManager : MonoBehaviour
         }
         PopupManager.Instance.CompPop(comp.compName,msg);
     }
+    #endregion
 
+    #region 生成对手
     private Skater GenerateOpponents(ActiveComp comp)
     {
         // 从配置里查比赛信息
@@ -225,41 +295,10 @@ public class CompetitionManager : MonoBehaviour
         s.speed = Random.Range(320, 401);
 
         // 给对手生成跳跃，根据级别
-        switch (comp.compType)
-        {
-            case CompType.Local:
-                s.jumpTypes.Add(new JumpData(jumpType.Toeloop, 1, 2, 8, 4f));
-                s.jumpTypes.Add(new JumpData(jumpType.Salchow, 1, 2, 10, 5f));
-                break;
-            case CompType.District:
-                s.jumpTypes.Add(new JumpData(jumpType.Toeloop, 2, 3, 10, 8f));
-                s.jumpTypes.Add(new JumpData(jumpType.Salchow, 2, 3, 12, 9f));
-                s.jumpTypes.Add(new JumpData(jumpType.Loop, 1, 2, 10, 6f));
-                break;
-            case CompType.Provincial:
-                s.jumpTypes.Add(new JumpData(jumpType.Toeloop, 2, 3, 10, 8f));
-                s.jumpTypes.Add(new JumpData(jumpType.Salchow, 2, 3, 12, 9f));
-                s.jumpTypes.Add(new JumpData(jumpType.Flip, 2, 3, 14, 11f));
-                s.jumpTypes.Add(new JumpData(jumpType.Loop, 2, 3, 12, 9f));
-                break;
-            case CompType.National:
-                s.jumpTypes.Add(new JumpData(jumpType.Lutz, 3, 4, 16, 15f));
-                s.jumpTypes.Add(new JumpData(jumpType.Flip, 3, 4, 14, 13f));
-                s.jumpTypes.Add(new JumpData(jumpType.Salchow, 3, 4, 12, 11f));
-                s.jumpTypes.Add(new JumpData(jumpType.Loop, 2, 3, 12, 9f));
-                s.jumpTypes.Add(new JumpData(jumpType.Axel, 2, 3, 14, 12f));
-                break;
-            case CompType.International:
-                s.jumpTypes.Add(new JumpData(jumpType.Axel, 3, 4, 18, 18f));
-                s.jumpTypes.Add(new JumpData(jumpType.Lutz, 3, 4, 16, 15f));
-                s.jumpTypes.Add(new JumpData(jumpType.Flip, 3, 4, 14, 13f));
-                s.jumpTypes.Add(new JumpData(jumpType.Salchow, 3, 4, 12, 11f));
-                s.jumpTypes.Add(new JumpData(jumpType.Loop, 3, 4, 14, 12f));
-                s.jumpTypes.Add(new JumpData(jumpType.Toeloop, 3, 4, 10, 10f));
-                break;
-        }
-        // TODO: 根据比赛级别给更多/更强的跳跃
+        JumpListGener(s, comp);
 
+        //生成技能
+        SkillListGener(s, comp);
         // 节目单用会的跳跃填充
         foreach (var j in s.jumpTypes)
         {
@@ -269,6 +308,143 @@ public class CompetitionManager : MonoBehaviour
         return s;
     }
 
+    private void SkillListGener(Skater s, ActiveComp c)
+    {
+        float ageMultiplier = 1f;
+        if (s.age <= 9) ageMultiplier = 0.2f;
+        else if (s.age <= 13) ageMultiplier = 0.3f;
+        else if (s.age <= 17) ageMultiplier = 0.7f;
+        else if (s.age <= 21) ageMultiplier = 1.0f;
+        else if (s.age <= 25) ageMultiplier = 1.3f;
+        else ageMultiplier = 1.5f;
+
+        for(int i = 0; i < 8; i++)
+        {
+            float k = Random.Range(0f, 1f);
+            switch (c.compType)
+            {
+                case CompType.Local:
+                    k -= 0.2f;
+                    break;
+                case CompType.District:
+                    k -= 0.15f;
+                    break;
+                case CompType.Provincial:
+                    k -= 0.1f;
+                    break;
+                case CompType.National:
+                    k += 0.15f;
+                    break;
+                case CompType.International:
+                    k += 0.2f;
+                    break;
+            }
+
+            if (Random.Range(0f, 1f) < k * ageMultiplier)
+            {
+                int a = Random.Range(0, 30);
+                skill data=new skill();
+                skillData current = SkillData.SkillInfo[a];
+                data.skillID = current.skillID;
+                data.level = Random.Range(1, current.levels.Count);
+                s.skills.Add(data);
+            }
+            if (Random.Range(0f, 1f) < 0.5 && s.skills.Count > 4) return;
+        }
+    }
+
+    private void JumpListGener(Skater s, ActiveComp c)
+    {
+        float ageMultiplier = 1f;
+        if (s.age <= 9) ageMultiplier = 0.3f;
+        else if (s.age <= 13) ageMultiplier = 0.5f;
+        else if (s.age <= 17) ageMultiplier = 0.7f;
+        else if (s.age <= 21) ageMultiplier = 1.0f;
+        else if (s.age <= 25) ageMultiplier = 0.8f;
+        else ageMultiplier = 0.6f;
+
+        while (s.jumpTypes.Count < 8)
+        {
+            float k = Random.Range(0f, 1f);
+            switch (c.compType)
+            {
+                case CompType.Local:
+                    k -= 0.2f;
+                    break;
+                case CompType.District:
+                    k -= 0.15f;
+                    break;
+                case CompType.Provincial:
+                    k -= 0.1f;
+                    break;
+                case CompType.National:
+                    k += 0.15f;
+                    break;
+                case CompType.International:
+                    k += 0.2f;
+                    break;
+            }
+
+
+            int rotation = 1;
+            if (Random.Range(0f, 1f) < k * ageMultiplier) rotation += 1;
+            if (Random.Range(0f, 1f) < k * ageMultiplier - 0.1f) rotation += 1;
+            if (Random.Range(0f, 1f) < k * ageMultiplier - 0.15f) rotation += 1;
+            if (Random.Range(0f, 1f) < k * ageMultiplier - 0.25f) rotation += 1;
+            if (rotation > 4) rotation = 4;
+
+            switch (s.jumpTypes.Count)
+            {
+                case 0:
+                    {
+                        JumpRotationData data = GetJumpRotationData(jumpType.Toeloop, rotation);
+                        s.jumpTypes.Add(new JumpData(jumpType.Toeloop, rotation, 4, data.staminaCost, data.baseScore));
+                        break;
+                    }
+                case 1:
+                    {
+                        JumpRotationData data = GetJumpRotationData(jumpType.Salchow, rotation);
+                        s.jumpTypes.Add(new JumpData(jumpType.Salchow, rotation, 4, data.staminaCost, data.baseScore));
+                        break;
+                    }
+                case 2:
+                    {
+                        JumpRotationData data = GetJumpRotationData(jumpType.Loop, rotation);
+                        s.jumpTypes.Add(new JumpData(jumpType.Loop, rotation, 4, data.staminaCost, data.baseScore));
+                        break;
+                    }
+                case 3:
+                    {
+                        JumpRotationData data = GetJumpRotationData(jumpType.Flip, rotation);
+                        s.jumpTypes.Add(new JumpData(jumpType.Flip, rotation, 4, data.staminaCost, data.baseScore));
+                        break;
+                    }
+                case 4:
+                    {
+                        JumpRotationData data = GetJumpRotationData(jumpType.Lutz, rotation);
+                        s.jumpTypes.Add(new JumpData(jumpType.Lutz, rotation, 4, data.staminaCost, data.baseScore));
+                        break;
+                    }
+                case 5:
+                    {
+                        JumpRotationData data = GetJumpRotationData(jumpType.Axel, rotation);
+                        s.jumpTypes.Add(new JumpData(jumpType.Axel, rotation, 4, data.staminaCost, data.baseScore));
+                        break;
+                    }
+                default:
+                    {
+                        JumpRotationData d1 = GetJumpRotationData(jumpType.Spin, rotation);
+                        s.jumpTypes.Add(new JumpData(jumpType.Spin, rotation, 4, d1.staminaCost, d1.baseScore));
+                        JumpRotationData d2 = GetJumpRotationData(jumpType.StepSequence, rotation);
+                        s.jumpTypes.Add(new JumpData(jumpType.StepSequence, rotation, 4, d2.staminaCost, d2.baseScore));
+                        break;
+                    }
+            }
+        }
+    }
+    #endregion
+
+    #region 表演赛相关
     private void SettleExhibition(List<Skater> mySkaters, ActiveComp comp)
     {
         List<string> resultMsg = new List<string>();
@@ -281,4 +457,86 @@ public class CompetitionManager : MonoBehaviour
         GameManager.Instance.currentSaveData.money += comp.award;
         PopupManager.Instance.MessagePop(resultMsg);
     }
+    #endregion
+
+    #region skill system
+    private void LoadSkill()
+    {
+        TextAsset json = Resources.Load<TextAsset>("Skills");
+        if (json != null)
+            SkillData = JsonUtility.FromJson<skillList>(json.text);
+    }
+
+    //创建技能,概率问题在调用的时候调整
+    public void CreateSkill(Skater S, string ID)
+    {
+        S.skills.Add(new skill { skillID = ID, level = 1 });
+    }
+
+    public skillData GetSkillByID(string id)
+    {
+        foreach (var sk in SkillData.SkillInfo)
+        {
+            if (sk.skillID == id) return sk;
+        }
+        return null;
+    }
+
+    //skill 效果
+    private void ApplySkills(Skater S, JumpData jump, ref float skillBonus, ref float extraScore)
+    {
+        foreach (var sk in S.skills)
+        {
+            skillData config = GetSkillByID(sk.skillID);
+            if (config == null) continue;
+            if (sk.level < 1 || sk.level > config.levels.Count) continue;
+            SkillLevelData lv = config.levels[sk.level - 1];
+
+            if (Random.Range(0f, 1f) >= lv.triggerRate) continue; // 没触发就跳过
+
+            switch (config.Type)
+            {
+                case skillType.jump:
+                    if (jump.jumpName == config.matchJump)
+                        skillBonus += lv.number;
+                    break;
+                case skillType.stamina:
+                    S.stamina += (int)lv.number;
+                    break;
+                case skillType.score:
+                    extraScore += lv.number;
+                    break;
+                case skillType.step:
+                    if (jump.jumpName == config.matchJump)
+                        skillBonus += lv.number;
+                    break;
+            }
+        }
+    }
+    #endregion
+
+    #region 读写jumpConfig
+    public void jumpConfig()
+    {
+        TextAsset json = Resources.Load<TextAsset>("jumpConfigs");
+        if (json != null) jumpConfigData = JsonUtility.FromJson<JumpConfigList>(json.text);
+    }
+    #endregion
+
+    #region 获取json配置
+    public JumpRotationData GetJumpRotationData(jumpType type, int k)
+    {
+        foreach (var config in jumpConfigData.JumpConfigs)
+        {
+            if (config.jumpName == type)
+            {
+                foreach (var rot in config.rotations)
+                {
+                    if (rot.rotation == k) return rot;
+                }
+            }
+        }
+        return null;
+    }
+    #endregion
 }

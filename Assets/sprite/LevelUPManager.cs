@@ -103,8 +103,8 @@ public class LevelUPManager : MonoBehaviour
                 break;
             case ClubType.Middle:
                 if (GameManager.Instance.currentSaveData.Skaters.Count >= 9
-                   && GameManager.Instance.currentSaveData.money >= 100000
-                   && club.AwardLocal >= 1
+                   && GameManager.Instance.currentSaveData.money >= 150000
+                   && club.AwardDistrict >= 1    // 改成区级
                    && !club.isUpgrading)
                 {
                     LevelUp = true;
@@ -112,8 +112,8 @@ public class LevelUPManager : MonoBehaviour
                 break;
             case ClubType.High:
                 if (GameManager.Instance.currentSaveData.Skaters.Count >= 12
-                   && GameManager.Instance.currentSaveData.money >= 100000
-                   && club.AwardLocal >= 1
+                   && GameManager.Instance.currentSaveData.money >= 250000
+                   && club.AwardProvincial >= 1  // 改成省级
                    && !club.isUpgrading)
                 {
                     LevelUp = true;
@@ -143,7 +143,7 @@ public class LevelUPManager : MonoBehaviour
         }
         if (LevelUp)
         {
-        PopupManager.Instance.ChoicePop($"当前升级需要30天|{M}金/n是否升级?", "确定", "取消", () =>
+        PopupManager.Instance.ChoicePop($"当前升级需要30天|{M}金\n是否升级?", "确定", "取消", () =>
         {
             club.isUpgrading = true;
             club.upgradeDays = 30;

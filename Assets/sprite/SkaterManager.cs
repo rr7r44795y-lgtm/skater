@@ -209,7 +209,7 @@ public class SkaterManager : MonoBehaviour
     }
     #endregion
 
-    #region 退役控制器+删除函数
+    #region 退役控制器+删除函数//相关扣钱逻辑没写
     private void exitSkater(Skater s)
     {
         PopupManager.Instance?.ChoicePop($"{s.name}想要退役，你是否要挽留？",

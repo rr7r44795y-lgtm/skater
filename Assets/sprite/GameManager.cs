@@ -21,12 +21,20 @@ public class Skater
     public bool isCompeting = false;
     public skaterType skaterType;
     public personType personality;
+    public jumpType trainingJump;
     public currentType current = currentType.training;
     public trainType trainingType = trainType.jump;
     public List<JumpData> jumpTypes = new List<JumpData>();
     public List<JumpData> ShowList = new List<JumpData>();
     public List<skill> skills = new List<skill>();
     public List<string> LiveList = new List<string>();//生平经历
+}
+
+[Serializable]
+public class skill
+{
+    public string skillID;
+    public int level;
 }
 
 [Serializable]
@@ -118,18 +126,14 @@ public enum personType
 
 public enum jumpType
 {
-    Toeloop,
-    Salchow,
-    Loop,
-    Flip,
-    Lutz,
-    Axel
-}
-
-public enum skill
-{
-    Skill1,
-    Skill2
+    Toeloop,//后外点冰跳
+    Salchow,//后内结环跳
+    Loop,//后外结环跳
+    Flip,//后内点冰跳
+    Lutz,//勾手跳
+    Axel,//阿克塞尔跳
+    Spin,//旋转
+    StepSequence//步法序列
 }
 
 [Serializable]
@@ -140,14 +144,18 @@ public class JumpData
     public int maxRotation;        // 圈数上限（初始1，可解锁）
     public int staminaCost;        // 体力消耗
     public float baseScore;        // 基础分
+    public float exp;
+    public float expToNext;
 
-    public JumpData(jumpType name, int rot, int maxRot, int cost, float score)
+    public JumpData(jumpType name, int rot, int maxRot, int cost, float score,float expNow=0f,float expMax=100f)
     {
         jumpName = name;
         rotation = rot;
         maxRotation = maxRot;
         staminaCost = cost;
         baseScore = score;
+        exp = expNow;
+        expToNext = expMax;
     }
 }
 
@@ -197,7 +205,8 @@ public class GameManager : MonoBehaviour
     private string saveFileName;
     private string savePath;
     private Coroutine dayLoopCoroutine;
-    public static bool isPause = false;
+    //public static bool isPause = false;
+    //private int pauseCount = 0;
 
     #region 初始化
     private void Awake()
@@ -379,7 +388,8 @@ public class GameManager : MonoBehaviour
     #endregion
 
     #region 暂停和继续
-    // ��ͣ
+    public static bool isPause = false;
+
     public void PauseGame()
     {
         if (isPause) return;  // 已经暂停了就别再停
@@ -389,13 +399,13 @@ public class GameManager : MonoBehaviour
         dayLoopCoroutine = null;
     }
 
-    // ����
     public void ResumeGame()
     {
         if (!isPause) return;  // 已经在跑了就别再开
         isPause = false;
         dayLoopCoroutine = StartCoroutine(DayLoop());
     }
+
     #endregion
 
     #region 新手引导

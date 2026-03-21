@@ -1,0 +1,686 @@
+{
+  "SkillInfo": [
+    {
+      "skillID": "skill_001",
+      "skillName": "稳健,无需多言",
+      "Type": 0,
+      "matchJump": 0,
+      "levels": [
+        {
+          "triggerRate": 0.2,
+          "number": 10
+        },
+        {
+          "triggerRate": 0.3,
+          "number": 15
+        },
+        {
+          "triggerRate": 0.4,
+          "number": 20
+        }
+      ],
+      "description": "伟大的滑冰之神会让你在比赛间隙恢复体力_虽然不多"
+    },
+    {
+      "skillID": "skill_002",
+      "skillName": "深呼吸",
+      "Type": 0,
+      "matchJump": 0,
+      "levels": [
+        {
+          "triggerRate": 0.15,
+          "number": 20
+        },
+        {
+          "triggerRate": 0.2,
+          "number": 25
+        },
+        {
+          "triggerRate": 0.25,
+          "number": 30
+        },
+        {
+          "triggerRate": 0.3,
+          "number": 35
+        }
+      ],
+      "description": "在跳跃间隙深吸一口气,冰场的冷空气让身体重新充满力量"
+    },
+    {
+      "skillID": "skill_003",
+      "skillName": "冰上马拉松",
+      "Type": 0,
+      "matchJump": 0,
+      "levels": [
+        {
+          "triggerRate": 0.35,
+          "number": 5
+        },
+        {
+          "triggerRate": 0.4,
+          "number": 8
+        },
+        {
+          "triggerRate": 0.45,
+          "number": 12
+        }
+      ],
+      "description": "谁说花滑不是耐力运动?每一步都在证明你跑得比别人久"
+    },
+    {
+      "skillID": "skill_004",
+      "skillName": "观众的力量",
+      "Type": 0,
+      "matchJump": 0,
+      "levels": [
+        {
+          "triggerRate": 0.1,
+          "number": 30
+        },
+        {
+          "triggerRate": 0.15,
+          "number": 35
+        },
+        {
+          "triggerRate": 0.2,
+          "number": 40
+        },
+        {
+          "triggerRate": 0.25,
+          "number": 45
+        }
+      ],
+      "description": "观众席的欢呼声仿佛注入了一针肾上腺素,虽然触发概率不高但回复量很大"
+    },
+    {
+      "skillID": "skill_005",
+      "skillName": "永不疲倦",
+      "Type": 0,
+      "matchJump": 0,
+      "levels": [
+        {
+          "triggerRate": 0.5,
+          "number": 3
+        },
+        {
+          "triggerRate": 0.55,
+          "number": 5
+        },
+        {
+          "triggerRate": 0.6,
+          "number": 7
+        },
+        {
+          "triggerRate": 0.65,
+          "number": 9
+        },
+        {
+          "triggerRate": 0.7,
+          "number": 12
+        }
+      ],
+      "description": "每次落冰都能恢复一点点,积少成多,细水长流"
+    },
+    {
+      "skillID": "skill_006",
+      "skillName": "时间的证明·T",
+      "Type": 1,
+      "matchJump": 0,
+      "levels": [
+        {
+          "triggerRate": 0.2,
+          "number": 0.08
+        },
+        {
+          "triggerRate": 0.25,
+          "number": 0.1
+        },
+        {
+          "triggerRate": 0.3,
+          "number": 0.12
+        }
+      ],
+      "description": "无数次练习Toeloop的时间,都会在赛场上成为证明"
+    },
+    {
+      "skillID": "skill_007",
+      "skillName": "时间的证明·S",
+      "Type": 1,
+      "matchJump": 1,
+      "levels": [
+        {
+          "triggerRate": 0.2,
+          "number": 0.08
+        },
+        {
+          "triggerRate": 0.25,
+          "number": 0.1
+        },
+        {
+          "triggerRate": 0.3,
+          "number": 0.12
+        }
+      ],
+      "description": "无数次练习Salchow的时间,都会在赛场上成为证明"
+    },
+    {
+      "skillID": "skill_008",
+      "skillName": "时间的证明·Lo",
+      "Type": 1,
+      "matchJump": 2,
+      "levels": [
+        {
+          "triggerRate": 0.2,
+          "number": 0.08
+        },
+        {
+          "triggerRate": 0.25,
+          "number": 0.1
+        },
+        {
+          "triggerRate": 0.3,
+          "number": 0.12
+        }
+      ],
+      "description": "无数次练习Loop的时间,都会在赛场上成为证明"
+    },
+    {
+      "skillID": "skill_009",
+      "skillName": "时间的证明·F",
+      "Type": 1,
+      "matchJump": 3,
+      "levels": [
+        {
+          "triggerRate": 0.2,
+          "number": 0.08
+        },
+        {
+          "triggerRate": 0.25,
+          "number": 0.1
+        },
+        {
+          "triggerRate": 0.3,
+          "number": 0.12
+        }
+      ],
+      "description": "无数次练习Flip的时间,都会在赛场上成为证明"
+    },
+    {
+      "skillID": "skill_010",
+      "skillName": "时间的证明·Lz",
+      "Type": 1,
+      "matchJump": 4,
+      "levels": [
+        {
+          "triggerRate": 0.2,
+          "number": 0.08
+        },
+        {
+          "triggerRate": 0.25,
+          "number": 0.1
+        },
+        {
+          "triggerRate": 0.3,
+          "number": 0.12
+        }
+      ],
+      "description": "无数次练习Lutz的时间,都会在赛场上成为证明"
+    },
+    {
+      "skillID": "skill_011",
+      "skillName": "时间的证明·A",
+      "Type": 1,
+      "matchJump": 5,
+      "levels": [
+        {
+          "triggerRate": 0.15,
+          "number": 0.1
+        },
+        {
+          "triggerRate": 0.2,
+          "number": 0.12
+        },
+        {
+          "triggerRate": 0.25,
+          "number": 0.15
+        },
+        {
+          "triggerRate": 0.3,
+          "number": 0.18
+        }
+      ],
+      "description": "Axel是最难的跳跃,所以时间给予的证明也更加厚重"
+    },
+    {
+      "skillID": "skill_012",
+      "skillName": "本能反应·T",
+      "Type": 1,
+      "matchJump": 0,
+      "levels": [
+        {
+          "triggerRate": 0.35,
+          "number": 0.05
+        },
+        {
+          "triggerRate": 0.4,
+          "number": 0.07
+        },
+        {
+          "triggerRate": 0.45,
+          "number": 0.09
+        }
+      ],
+      "description": "Toeloop已经刻进了肌肉记忆,身体比脑子先动"
+    },
+    {
+      "skillID": "skill_013",
+      "skillName": "本能反应·S",
+      "Type": 1,
+      "matchJump": 1,
+      "levels": [
+        {
+          "triggerRate": 0.35,
+          "number": 0.05
+        },
+        {
+          "triggerRate": 0.4,
+          "number": 0.07
+        },
+        {
+          "triggerRate": 0.45,
+          "number": 0.09
+        }
+      ],
+      "description": "Salchow已经刻进了肌肉记忆,身体比脑子先动"
+    },
+    {
+      "skillID": "skill_014",
+      "skillName": "钢铁之刃",
+      "Type": 1,
+      "matchJump": 6,
+      "levels": [
+        {
+          "triggerRate": 0.25,
+          "number": 0.1
+        },
+        {
+          "triggerRate": 0.3,
+          "number": 0.12
+        },
+        {
+          "triggerRate": 0.35,
+          "number": 0.15
+        }
+      ],
+      "description": "旋转时冰刀仿佛与冰面融为一体,稳如磐石"
+    },
+    {
+      "skillID": "skill_015",
+      "skillName": "努力,无需多言",
+      "Type": 2,
+      "matchJump": 7,
+      "levels": [
+        {
+          "triggerRate": 0.2,
+          "number": 0.08
+        },
+        {
+          "triggerRate": 0.3,
+          "number": 0.1
+        },
+        {
+          "triggerRate": 0.35,
+          "number": 0.13
+        }
+      ],
+      "description": "伟大的滑冰之神赞赏你的努力,提高步法的得分率_虽然不多"
+    },
+    {
+      "skillID": "skill_016",
+      "skillName": "舞者的灵魂",
+      "Type": 2,
+      "matchJump": 7,
+      "levels": [
+        {
+          "triggerRate": 0.15,
+          "number": 0.12
+        },
+        {
+          "triggerRate": 0.2,
+          "number": 0.15
+        },
+        {
+          "triggerRate": 0.25,
+          "number": 0.18
+        },
+        {
+          "triggerRate": 0.3,
+          "number": 0.2
+        }
+      ],
+      "description": "每一步都像在跳舞,步法序列是你的个人演唱会"
+    },
+    {
+      "skillID": "skill_017",
+      "skillName": "冰上诗人",
+      "Type": 2,
+      "matchJump": 7,
+      "levels": [
+        {
+          "triggerRate": 0.3,
+          "number": 0.05
+        },
+        {
+          "triggerRate": 0.35,
+          "number": 0.07
+        },
+        {
+          "triggerRate": 0.4,
+          "number": 0.09
+        }
+      ],
+      "description": "用冰刀在冰面上写诗,每一道痕迹都是一个音节"
+    },
+    {
+      "skillID": "skill_018",
+      "skillName": "节奏大师",
+      "Type": 2,
+      "matchJump": 7,
+      "levels": [
+        {
+          "triggerRate": 0.25,
+          "number": 0.08
+        },
+        {
+          "triggerRate": 0.3,
+          "number": 0.1
+        },
+        {
+          "triggerRate": 0.35,
+          "number": 0.12
+        },
+        {
+          "triggerRate": 0.4,
+          "number": 0.15
+        }
+      ],
+      "description": "音乐响起的那一刻,脚步就再也停不下来"
+    },
+    {
+      "skillID": "skill_019",
+      "skillName": "滑行的艺术",
+      "Type": 2,
+      "matchJump": 7,
+      "levels": [
+        {
+          "triggerRate": 0.4,
+          "number": 0.03
+        },
+        {
+          "triggerRate": 0.45,
+          "number": 0.05
+        },
+        {
+          "triggerRate": 0.5,
+          "number": 0.07
+        }
+      ],
+      "description": "连最简单的滑行都能让裁判点头,这就是实力"
+    },
+    {
+      "skillID": "skill_020",
+      "skillName": "伟大,无需多言",
+      "Type": 3,
+      "matchJump": 5,
+      "levels": [
+        {
+          "triggerRate": 0.2,
+          "number": 3
+        },
+        {
+          "triggerRate": 0.25,
+          "number": 4
+        },
+        {
+          "triggerRate": 0.3,
+          "number": 5
+        }
+      ],
+      "description": "伟大的滑冰之神会让你获得超出应得分数的分数_虽然不多"
+    },
+    {
+      "skillID": "skill_021",
+      "skillName": "汗水的结晶",
+      "Type": 3,
+      "matchJump": 2,
+      "levels": [
+        {
+          "triggerRate": 0.25,
+          "number": 2
+        },
+        {
+          "triggerRate": 0.3,
+          "number": 3
+        },
+        {
+          "triggerRate": 0.35,
+          "number": 4
+        },
+        {
+          "triggerRate": 0.4,
+          "number": 5
+        }
+      ],
+      "description": "在冰场上流的汗水,都会在最后成为奖杯的基石"
+    },
+    {
+      "skillID": "skill_022",
+      "skillName": "完美落冰",
+      "Type": 3,
+      "matchJump": 0,
+      "levels": [
+        {
+          "triggerRate": 0.3,
+          "number": 1.5
+        },
+        {
+          "triggerRate": 0.35,
+          "number": 2.5
+        },
+        {
+          "triggerRate": 0.4,
+          "number": 3.5
+        }
+      ],
+      "description": "Toeloop落冰的那一刻,整个冰场都安静了_因为太完美了"
+    },
+    {
+      "skillID": "skill_023",
+      "skillName": "空中的王者",
+      "Type": 3,
+      "matchJump": 4,
+      "levels": [
+        {
+          "triggerRate": 0.15,
+          "number": 4
+        },
+        {
+          "triggerRate": 0.2,
+          "number": 5
+        },
+        {
+          "triggerRate": 0.25,
+          "number": 6
+        },
+        {
+          "triggerRate": 0.3,
+          "number": 7
+        }
+      ],
+      "description": "Lutz起跳的瞬间仿佛长出了翅膀,裁判不得不多给点分"
+    },
+    {
+      "skillID": "skill_024",
+      "skillName": "逆转裁判",
+      "Type": 3,
+      "matchJump": 3,
+      "levels": [
+        {
+          "triggerRate": 0.2,
+          "number": 3
+        },
+        {
+          "triggerRate": 0.25,
+          "number": 4
+        },
+        {
+          "triggerRate": 0.3,
+          "number": 5
+        }
+      ],
+      "description": "明明觉得一般般的Flip,裁判却给了意想不到的高分"
+    },
+    {
+      "skillID": "skill_025",
+      "skillName": "旋转的星辰",
+      "Type": 3,
+      "matchJump": 6,
+      "levels": [
+        {
+          "triggerRate": 0.25,
+          "number": 2
+        },
+        {
+          "triggerRate": 0.3,
+          "number": 3
+        },
+        {
+          "triggerRate": 0.35,
+          "number": 4
+        }
+      ],
+      "description": "旋转时裙摆划出的弧线像星轨一样美丽,加分!"
+    },
+    {
+      "skillID": "skill_026",
+      "skillName": "最后的冲刺",
+      "Type": 3,
+      "matchJump": 5,
+      "levels": [
+        {
+          "triggerRate": 0.1,
+          "number": 8
+        },
+        {
+          "triggerRate": 0.15,
+          "number": 10
+        },
+        {
+          "triggerRate": 0.2,
+          "number": 12
+        },
+        {
+          "triggerRate": 0.25,
+          "number": 15
+        },
+        {
+          "triggerRate": 0.3,
+          "number": 18
+        }
+      ],
+      "description": "Axel是节目的灵魂,完美的Axel值得满堂喝彩和超高加分"
+    },
+    {
+      "skillID": "skill_027",
+      "skillName": "破冰者",
+      "Type": 1,
+      "matchJump": 2,
+      "levels": [
+        {
+          "triggerRate": 0.25,
+          "number": 0.08
+        },
+        {
+          "triggerRate": 0.3,
+          "number": 0.1
+        },
+        {
+          "triggerRate": 0.35,
+          "number": 0.13
+        }
+      ],
+      "description": "Loop跳跃时脚下的冰面仿佛在为你让路"
+    },
+    {
+      "skillID": "skill_028",
+      "skillName": "刀刃上的舞蹈",
+      "Type": 1,
+      "matchJump": 3,
+      "levels": [
+        {
+          "triggerRate": 0.25,
+          "number": 0.08
+        },
+        {
+          "triggerRate": 0.3,
+          "number": 0.1
+        },
+        {
+          "triggerRate": 0.35,
+          "number": 0.13
+        },
+        {
+          "triggerRate": 0.4,
+          "number": 0.15
+        }
+      ],
+      "description": "Flip的刃法切换已经变成了一种本能"
+    },
+    {
+      "skillID": "skill_029",
+      "skillName": "不屈的意志",
+      "Type": 0,
+      "matchJump": 0,
+      "levels": [
+        {
+          "triggerRate": 0.05,
+          "number": 50
+        },
+        {
+          "triggerRate": 0.08,
+          "number": 55
+        },
+        {
+          "triggerRate": 0.1,
+          "number": 60
+        }
+      ],
+      "description": "极低概率触发,但一旦触发就能回满大半体力_传说中的逆风翻盘"
+    },
+    {
+      "skillID": "skill_030",
+      "skillName": "Salchow之魂",
+      "Type": 3,
+      "matchJump": 1,
+      "levels": [
+        {
+          "triggerRate": 0.25,
+          "number": 2.5
+        },
+        {
+          "triggerRate": 0.3,
+          "number": 3.5
+        },
+        {
+          "triggerRate": 0.35,
+          "number": 4.5
+        },
+        {
+          "triggerRate": 0.4,
+          "number": 5.5
+        }
+      ],
+      "description": "灵魂深处与Salchow产生了共鸣,每一次起跳都带着信仰的力量"
+    }
+  ]
+}
