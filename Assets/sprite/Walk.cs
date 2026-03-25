@@ -48,7 +48,7 @@ public class Walk : MonoBehaviour
     List<int> visited = new List<int>();
     private Sprite[] frames;
 
-    #region ³õÊ¼»¯
+    #region åˆå§‹åŒ–
     void Start()
     {
         if (skater != null) isCustom = false;
@@ -86,18 +86,18 @@ public class Walk : MonoBehaviour
     }
     #endregion
 
-    #region Ñ¡ÊÖÖ÷Ñ­»·
+    #region é€‰æ‰‹ä¸»å¾ªç¯
     IEnumerator SkaterLoop()
     {
         UnityEngine.Debug.Log($"{skater.name} {skater.spriteID}");
-        // 1. ×ßµ½Èë¿Ú
+        // 1. èµ°åˆ°å…¥å£
         target = enterPoint;
         yield return new WaitUntil(() => Vector3.Distance(transform.position, target.position) < 0.1f);
 
-        // 2. Ö÷Ñ­»·
+        // 2. ä¸»å¾ªç¯
         while (true)
         {
-            // ¼ì²é±ÈÈü
+            // æ£€æŸ¥æ¯”èµ›
             if (skater.isCompeting)
             {
                 target = exitPoint;
@@ -105,7 +105,7 @@ public class Walk : MonoBehaviour
                 yield break;
             }
 
-            // 3. ¸ù¾İ×´Ì¬Ñ¡µã
+            // 3. æ ¹æ®çŠ¶æ€é€‰ç‚¹
             if (skater.current == currentType.training)
             {
                 if (trainingWaypoints != null && trainingWaypoints.Length > 0)
@@ -118,10 +118,10 @@ public class Walk : MonoBehaviour
                 target = relaxPoint;
             }
 
-            // 4. µÈ×ßµ½
+            // 4. ç­‰èµ°åˆ°
             yield return new WaitUntil(() => Vector3.Distance(transform.position, target.position) < 0.1f);
 
-            // 5. ÔÙ¼ì²éÒ»´Î±ÈÈü£¨×ßµÄ¹ı³ÌÖĞ¿ÉÄÜ±äÁË£©
+            // 5. å†æ£€æŸ¥ä¸€æ¬¡æ¯”èµ›ï¼ˆèµ°çš„è¿‡ç¨‹ä¸­å¯èƒ½å˜äº†ï¼‰
             if (skater.isCompeting)
             {
                 target = exitPoint;
@@ -129,7 +129,7 @@ public class Walk : MonoBehaviour
                 yield break;
             }
 
-            // 6. Ö´ĞĞ¶ÔÓ¦Âß¼­
+            // 6. æ‰§è¡Œå¯¹åº”é€»è¾‘
             target = null;
             if (skater.current == currentType.training)
             {
@@ -146,7 +146,7 @@ public class Walk : MonoBehaviour
             else
             {
                 Relax(skater);
-                // 20% ¸ÅÂÊÏĞ¹äÒ»ÏÂÔÙ»ØÈ¥
+                // 20% æ¦‚ç‡é—²é€›ä¸€ä¸‹å†å›å»
                 if (skater.stamina < 100 && Random.value < 0.2f)
                 {
                     target = waypoints[Random.Range(0, waypoints.Length)];
@@ -163,13 +163,13 @@ public class Walk : MonoBehaviour
     }
     #endregion
 
-    #region Â·ÈËÖ÷Ñ­»·
+    #region è·¯äººä¸»å¾ªç¯
     IEnumerator CustomLoop()
     {
-        // ×ßµ½Èë¿Ú
+        // èµ°åˆ°å…¥å£
         yield return new WaitUntil(() => Vector3.Distance(transform.position, target.position) < 0.1f);
 
-        // ¹äµã
+        // é€›ç‚¹
         while (true)
         {
             PickNewTarget();
@@ -202,7 +202,7 @@ public class Walk : MonoBehaviour
     }
     #endregion
 
-    #region ¶¯»­±ä»»
+    #region åŠ¨ç”»å˜æ¢
     IEnumerator PlayAnimation()
     {
         int index = 0;
@@ -210,12 +210,12 @@ public class Walk : MonoBehaviour
         {
             innerImage.sprite = frames[index];
             index = (index + 1) % frames.Length;
-            yield return new WaitForSeconds(0.15f); // Ã¿Ö¡¼ä¸ô£¬Ô½Ğ¡Ô½¿ì
+            yield return new WaitForSeconds(0.15f); // æ¯å¸§é—´éš”ï¼Œè¶Šå°è¶Šå¿«
         }
     }
     #endregion
 
-    #region ÑµÁ··½·¨
+    #region è®­ç»ƒæ–¹æ³•
     private void Training(Skater skater)
     {
         trainType Type = skater.trainingType;
@@ -240,17 +240,17 @@ public class Walk : MonoBehaviour
                             if (!known) unlearned.Add(j);
                         }
 
-                        // ÓĞÃ»Ñ§µÄ¾Í÷»¸ÅÂÊ
+                        // æœ‰æ²¡å­¦çš„å°±éª°æ¦‚ç‡
                         if (unlearned.Count > 0 && Random.Range(0f, 1f) < 0.3f)
                         {
                             jumpType learned = unlearned[Random.Range(0, unlearned.Count)];
                             skater.jumpTypes.Add(new JumpData(learned, 1, 2, 8, 4f));
-                            List<string> msg = new List<string> { $"{skater.name}Ñ§»áÁË{learned}!" };
+                            List<string> msg = new List<string> { $"{skater.name}å­¦ä¼šäº†{learned}!" };
                             PopupManager.Instance?.MessagePop(msg);
                             break;
                         }
 
-                        // 6¸öÌøÔ¾Ñ§ÍêÁË£¬²¹ Spin ºÍ StepSequence
+                        // 6ä¸ªè·³è·ƒå­¦å®Œäº†ï¼Œè¡¥ Spin å’Œ StepSequence
                         if (unlearned.Count == 0 && skater.jumpTypes.Count < 8)
                         {
                             bool hasSpin = false, hasStep = false;
@@ -263,7 +263,7 @@ public class Walk : MonoBehaviour
                             {
                                 JumpRotationData data = CompetitionManager.Instance.GetJumpRotationData(jumpType.Spin, 1);
                                 skater.jumpTypes.Add(new JumpData(jumpType.Spin, 1, 4, data.staminaCost, data.baseScore));
-                                List<string> msg = new List<string> { $"{skater.name}Ñ§»áÁËSpin!" };
+                                List<string> msg = new List<string> { $"{skater.name}å­¦ä¼šäº†Spin!" };
                                 PopupManager.Instance?.MessagePop(msg);
                                 break;
                             }
@@ -271,7 +271,7 @@ public class Walk : MonoBehaviour
                             {
                                 JumpRotationData data = CompetitionManager.Instance.GetJumpRotationData(jumpType.StepSequence, 1);
                                 skater.jumpTypes.Add(new JumpData(jumpType.StepSequence, 1, 4, data.staminaCost, data.baseScore));
-                                List<string> msg = new List<string> { $"{skater.name}Ñ§»áÁËStepSequence!" };
+                                List<string> msg = new List<string> { $"{skater.name}å­¦ä¼šäº†StepSequence!" };
                                 PopupManager.Instance?.MessagePop(msg);
                                 break;
                             }
@@ -296,7 +296,7 @@ public class Walk : MonoBehaviour
                             if (picked.exp >= picked.expToNext)
                             {
                                 RotationLvUP(skater, picked.jumpName);
-                                List<string> msg = new List<string> { $"{skater.name}µÄ{picked.jumpName}Éıµ½{picked.rotation}È¦!" };
+                                List<string> msg = new List<string> { $"{skater.name}çš„{picked.jumpName}å‡åˆ°{picked.rotation}åœˆ!" };
                                 PopupManager.Instance?.MessagePop(msg);
                             }
                             break;
@@ -330,7 +330,7 @@ public class Walk : MonoBehaviour
     }
     #endregion
 
-    #region ĞİÏ¢·½·¨
+    #region ä¼‘æ¯æ–¹æ³•
     private void Relax(Skater skater)
     {
         skater.current = currentType.relax;
@@ -343,7 +343,7 @@ public class Walk : MonoBehaviour
     }
     #endregion
 
-    #region È¦ÊıÉı¼¶
+    #region åœˆæ•°å‡çº§
     private void RotationLvUP(Skater s, jumpType jump)
     {
         JumpData currentJump = null;
@@ -370,22 +370,23 @@ public class Walk : MonoBehaviour
     }
     #endregion
 
-    #region µã»÷ÊÂ¼ş
+    #region ç‚¹å‡»äº‹ä»¶
     private void OnClicked()
     {
         PopupManager.Instance?.SkaterInfoPop(skater);
     }
     #endregion
 
-    #region Ïú»Ù
+    #region é”€æ¯
     void OnDestroy()
     {
         if (isCustom) WalManager.CurrentCustom--;
+        if(!isCustom)WalManager.RoleName.Remove(skater.name);
     }
     #endregion
 
-    #region ĞÅÏ¢ÏÔÊ¾
-    [Header("ÊôĞÔÔö³¤µ¯´°")]
+    #region ä¿¡æ¯æ˜¾ç¤º
+    [Header("å±æ€§å¢é•¿å¼¹çª—")]
     Queue<string> msgQueue = new Queue<string>();
     [SerializeField] private TextMeshProUGUI popText;
     private bool isShowing = false;
