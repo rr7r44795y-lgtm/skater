@@ -1,12 +1,12 @@
-using System;
+ï»¿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-    #region skillÅäÖÃ
-//ÕâÀïÊÇskillÅäÖÃ£¬gameManagerÊÇskaterÀïµÄskill
+    #region skillé…ç½®
+//è¿™é‡Œæ˜¯skillé…ç½®ï¼ŒgameManageræ˜¯skateré‡Œçš„skill
 [Serializable]
 public class skillList
 {
@@ -27,8 +27,8 @@ public class skillData
 [Serializable]
 public class SkillLevelData
 {
-    public float triggerRate;//´¥·¢¸ÅÂÊ
-    public float number;//ÊıÖµ
+    public float triggerRate;//è§¦å‘æ¦‚ç‡
+    public float number;//æ•°å€¼
 }
 
 [Serializable]
@@ -45,7 +45,7 @@ public class CompetitionManager : MonoBehaviour
     private skillList SkillData;
     private JumpConfigList jumpConfigData;
 
-    #region ³õÊ¼»¯
+    #region åˆå§‹åŒ–
     void Awake()
     {
         if (Instance == null)
@@ -63,7 +63,7 @@ public class CompetitionManager : MonoBehaviour
     }
     #endregion
 
-    #region ¾ºÈü¶ÁÈ¡
+    #region ç«èµ›è¯»å–
     private void LoadCompetitions()
     {
         TextAsset json = Resources.Load<TextAsset>("Competitions");
@@ -72,7 +72,7 @@ public class CompetitionManager : MonoBehaviour
     }
     #endregion
 
-    #region ±ÈÈü¿ªÊ¼
+    #region æ¯”èµ›å¼€å§‹
     public void SettleCompetition(List<Skater> mySkaters, ActiveComp comp)
     {
         if (comp.compType == CompType.Exhibition)
@@ -80,7 +80,7 @@ public class CompetitionManager : MonoBehaviour
             SettleExhibition(mySkaters, comp);
             return;
         }
-        // ===== 1. Éú³É¶ÔÊÖÌîÂú16ÈË =====
+        // ===== 1. ç”Ÿæˆå¯¹æ‰‹å¡«æ»¡16äºº =====
         List<Skater> allSkaters = new List<Skater>(mySkaters);
         while (allSkaters.Count < 16)
         {
@@ -89,7 +89,7 @@ public class CompetitionManager : MonoBehaviour
             else break;
         }
 
-        // ===== 2. Ï´ÅÆ =====
+        // ===== 2. æ´—ç‰Œ =====
         for (int i = allSkaters.Count - 1; i > 0; i--)
         {
             int j = Random.Range(0, i + 1);
@@ -98,13 +98,16 @@ public class CompetitionManager : MonoBehaviour
             allSkaters[j] = temp;
         }
 
-        // ===== 3. Ä£Äâ±íÑİ =====
+        // ===== 3. æ¨¡æ‹Ÿè¡¨æ¼” =====
         Dictionary<Skater, float> scores = new Dictionary<Skater, float>();
-
+        List<string> TextToShow = new List<string>();
+        
         for (int i = 0; i < allSkaters.Count; i++)
         {
             var S = allSkaters[i];
+            if (S.stamina < 50) S.stamina = 100;
             float totalScore = 0f;
+            string text = $"{S.name}çš„è¡¨æ¼”å¼€å§‹å•¦--\n";
 
             float k = 0.5f;
             int order = i + 1;
@@ -112,100 +115,177 @@ public class CompetitionManager : MonoBehaviour
             else if (order % 4 == 0) k -= 0.15f;
             else k += 0.05f;
 
-            // ½ÚÄ¿µ¥
-            List<JumpData> program;
-            if (S.ShowList.Count > 0)
+            // èŠ‚ç›®å•
+            List<ShowElement> program;
+            bool hasProgram = false;
+            foreach (var se in S.ShowList)
+            {
+                if (se.jump.Count > 0) { hasProgram = true; break; }
+            }
+
+            if (hasProgram)
             {
                 program = S.ShowList;
             }
             else if (S.jumpTypes.Count > 0)
             {
-                program = new List<JumpData>(S.jumpTypes);
-                program.Sort((a, b) => b.baseScore.CompareTo(a.baseScore));
+                program = new List<ShowElement>();
+                List<JumpData> sorted = new List<JumpData>(S.jumpTypes);
+                sorted.Sort((a, b) => b.baseScore.CompareTo(a.baseScore));
+                foreach (var j in sorted)
+                {
+                    ShowElement se = new ShowElement();
+                    se.jump.Add(j);
+                    program.Add(se);
+                }
             }
             else
             {
-                program = new List<JumpData>();
+                program = new List<ShowElement>();
             }
 
-            foreach (var jump in program)
+            foreach (var element in program)
             {
-                float currentBase = jump.baseScore;
-                int currentCost = jump.staminaCost;
-
-                // ³¬¾ø±¬·¢£º¸ÅÂÊÌáÉıÒ»È¦
-                if (jump.rotation < jump.maxRotation && Random.Range(0f, 1f) < 0.05f)
+                if (element.jump.Count == 0) continue;
+                if (element.jump.Count > 1)
                 {
-                    JumpRotationData upData = CompetitionManager.Instance.GetJumpRotationData(jump.jumpName, jump.rotation + 1);
-                    if (upData != null)
+                    text += "ã€è”è·³ã€‘\n";
+                }
+                for (int e = 0; e < element.jump.Count; e++)
+                {
+                    var jump = element.jump[e];
+                    float comboMultiplier = (e == 0) ? 1f : 0.8f;
+
+                    float currentBase = jump.baseScore;
+                    int currentCost = jump.staminaCost;
+                    int currentRotation = jump.rotation;
+
+                    // è¶…ç»çˆ†å‘ï¼šæ¦‚ç‡æå‡ä¸€åœˆ
+                    if (jump.rotation < jump.maxRotation && Random.Range(0f, 1f) < 0.05f)
                     {
-                        currentBase = upData.baseScore;
-                        currentCost = upData.staminaCost;
+                        text += "æƒ³è¦è¶…å¸¸å‘æŒ¥!\n";
+                        currentRotation += 1;
+                        JumpRotationData upData = GetJumpRotationData(jump.jumpName, currentRotation);
+                        if (upData != null)
+                        {
+                            currentBase = upData.baseScore;
+                            currentCost = upData.staminaCost;
+                        }
                     }
-                }
 
-                S.stamina -= currentCost;
+                    while (S.stamina <= currentCost&&currentRotation > 1)
+                    {
+                        currentRotation -= 1;
+                        JumpRotationData upData = GetJumpRotationData(jump.jumpName,currentRotation);
+                        if (upData != null)
+                        {
+                            currentBase = upData.baseScore;
+                            currentCost = upData.staminaCost;
+                        }
+                        else break;
+                    }
 
-                // ÌåÁ¦Ó°Ïì³É¹¦ÂÊ
-                float staminaPenalty = 0f;
-                if (S.stamina < 30) staminaPenalty = -0.2f;
-                else if (S.stamina < 60) staminaPenalty = -0.1f;
+                    S.stamina -= currentCost;
 
-                // ¼¼ÄÜ
-                float skillBonus = 0f;
-                float extraScore = 0f;
-                ApplySkills(S, jump, ref skillBonus, ref extraScore);
+                    // ä½“åŠ›å½±å“æˆåŠŸç‡
+                    float staminaPenalty = 0f;
+                    if (S.stamina < 30) staminaPenalty = -0.2f;
+                    else if (S.stamina < 60) staminaPenalty = -0.1f;
 
-                //ÊôĞÔ
-                float attrBonus = 0f;
-                if (jump.jumpName <= jumpType.Axel)
-                    attrBonus = S.jump * 0.0001f;
-                else if (jump.jumpName == jumpType.Spin)
-                    attrBonus = S.spin * 0.0001f;
-                else if (jump.jumpName == jumpType.StepSequence)
-                    attrBonus = S.dance * 0.0001f;
+                    // æŠ€èƒ½
+                    float skillBonus = 0f;
+                    float extraScore = 0f;
+                    ApplySkills(S, jump, ref skillBonus, ref extraScore,ref text);
 
-                if (attrBonus > 0.3f) attrBonus = 0.3f;
-                float finalK = k + skillBonus + staminaPenalty + attrBonus;
+                    //å±æ€§
+                    float attrBonus = 0f;
+                    if (jump.jumpName <= jumpType.Axel)
+                        attrBonus = S.jump * 0.0001f;
+                    else if (jump.jumpName == jumpType.Spin)
+                        attrBonus = S.spin * 0.0001f;
+                    else if (jump.jumpName == jumpType.StepSequence)
+                        attrBonus = S.dance * 0.0001f;
 
-                float roll = Random.Range(0f, 1f);
-                float goe = 0f;
+                    if (attrBonus > 0.3f) attrBonus = 0.3f;
+                    float finalK = k + skillBonus + staminaPenalty + attrBonus;
 
-                if (roll > finalK)
-                {
-                    float failRoll = Random.Range(0f, 1f);
-                    if (failRoll > finalK - 0.1f)
-                        goe = -3f;
+                    float roll = Random.Range(0f, 1f);
+                    float goe = 0f;
+                    text += $"{currentRotation}" + GetText(jump.jumpName);
+                    if (element.jump.Count > 1&& element.jump.Count != e + 1) text += "+";
+                    if (roll > finalK)
+                    {
+                        float failRoll = Random.Range(0f, 1f);
+                        if (failRoll > finalK - 0.1f)
+                        {
+                            goe = -3f;
+                        }
+                        else  
+                        { 
+                            goe = -1f;
+                        }
+                    }
                     else
-                        goe = -1f;
-                }
-                else
-                {
-                    float successRoll = Random.Range(0f, 1f);
-                    if (successRoll < 0.5f)
-                        goe = 1f;
-                    else if (successRoll < 0.75f)
-                        goe = 2f;
-                    else if (successRoll < 0.9f)
-                        goe = 3f;
-                    else
-                        goe = 5f;
-                }
+                    {
+                        float successRoll = Random.Range(0f, 1f);
+                        if (successRoll < 0.5f)
+                            { goe = 1f;  }
+                        else if (successRoll < 0.75f)
+                            {goe = 2f;
+                        }
+                        else if (successRoll < 0.9f)
+                            { goe = 3f; }
+                        else
+                            { goe = 5f; }
+                    }
 
-                float jumpScore = (currentBase + extraScore) * (1f + goe / 10f);
-                totalScore += jumpScore;
+                    if(element.jump.Count==e+1)
+                    {
+                        switch (goe)
+                        {
+                            case -3f:
+                                text += "âŒæ‘”å€’...\n";
+                                break;
+                            case -1f:
+                                text += "âš ï¸è½å†°ä¸ç¨³\n";
+                                break;
+                            case 1f:
+                                text += "âœ“è½å†°æˆåŠŸ\n";
+                                break;
+                            case 2f:
+                                text += "âœ“âœ“å®Œç¾è½å†°\n";
+                                break;
+                            case 3f:
+                                text += "âœ¨å‘æŒ¥è¶…æ£’\n";
+                                break;
+                            case 5f:
+                                text += "ğŸŒŸğŸŒŸğŸŒŸGOEæ»¡åˆ†ï¼\n";
+                                break;
+                        }
+                    }
+                    
+                    float jumpScore = (currentBase * comboMultiplier + extraScore) * (1f + goe / 10f);
+                    totalScore += jumpScore;
+                }
             }
 
+            foreach (var item in GameManager.Instance.currentSaveData.Skaters)
+            {
+                if(item==S) {
+                    TextToShow.Add(text);
+                    continue;
+                }
+            }
             float pcs = Mathf.Clamp(S.dance / 30f, 0f, 10f);
             totalScore += pcs;
 
             scores[S] = totalScore;
         }
 
-        // ===== 4. ÅÅÃû =====
+        // ===== 4. æ’å =====
         allSkaters.Sort((a, b) => scores[b].CompareTo(scores[a]));
 
-        // ===== 5. ·¢½±Àø =====
+        // ===== 5. å‘å¥–åŠ± =====
         for (int i = 0; i < allSkaters.Count; i++)
         {
             if (!mySkaters.Contains(allSkaters[i])) continue;
@@ -241,24 +321,33 @@ public class CompetitionManager : MonoBehaviour
                 S.fans += 10;
             }
 
-            S.LiveList.Add($"{comp.compName} µÚ{rank}Ãû µÃ·Ö:{scores[S]:F1}\n");
+            S.LiveList.Add($"{comp.compName} ç¬¬{rank}å å¾—åˆ†:{scores[S]:F1}\n");
         }
 
-        // ===== 6. µ¯´° =====
+        foreach(var item in comp.skaterNames)
+        {
+            foreach(var s in GameManager.Instance.currentSaveData.Skaters)
+            {
+                if (item == s.name) s.isCompeting = false;
+            }
+        }
+
+        // ===== 6. å¼¹çª— =====
         string msg = "";
         for (int i = 0; i < allSkaters.Count; i++)
         {
-            string marker = mySkaters.Contains(allSkaters[i]) ? "¡ï" : "";
-            msg += ($"µÚ{i + 1}Ãû: {scores[allSkaters[i]]:F1}·Ö {marker} {allSkaters[i].name}\n");
+            string marker = mySkaters.Contains(allSkaters[i]) ? "â˜…" : "";
+            msg += ($"ç¬¬{i + 1}å: {scores[allSkaters[i]]:F1}åˆ† {marker} {allSkaters[i].name}\n");
         }
-        PopupManager.Instance.CompPop(comp.compName,msg);
+        PopupManager.Instance.CompPop(comp.compName, msg, () =>
+       { PopupManager.Instance.MessagePop(TextToShow); });
     }
     #endregion
 
-    #region Éú³É¶ÔÊÖ
+    #region ç”Ÿæˆå¯¹æ‰‹
     private Skater GenerateOpponents(ActiveComp comp)
     {
-        // ´ÓÅäÖÃÀï²é±ÈÈüĞÅÏ¢
+        // ä»é…ç½®é‡ŒæŸ¥æ¯”èµ›ä¿¡æ¯
         Competition CompInfo = null;
         if (compData != null)
         {
@@ -294,18 +383,152 @@ public class CompetitionManager : MonoBehaviour
         s.age = Random.Range(CompInfo.MiniAge, CompInfo.MaxAge);
         s.speed = Random.Range(320, 401);
 
-        // ¸ø¶ÔÊÖÉú³ÉÌøÔ¾£¬¸ù¾İ¼¶±ğ
+        // ç»™å¯¹æ‰‹ç”Ÿæˆè·³è·ƒï¼Œæ ¹æ®çº§åˆ«
         JumpListGener(s, comp);
 
-        //Éú³É¼¼ÄÜ
+        //ç”ŸæˆæŠ€èƒ½
         SkillListGener(s, comp);
-        // ½ÚÄ¿µ¥ÓÃ»áµÄÌøÔ¾Ìî³ä
-        foreach (var j in s.jumpTypes)
-        {
-            s.ShowList.Add(j);
-        }
+
+        // èŠ‚ç›®å•ç”¨ä¼šçš„è·³è·ƒå¡«å……
+        ShowListGener(s);
 
         return s;
+    }
+
+    private JumpData FindJump(Skater s, jumpType type)
+    {
+        foreach (var j in s.jumpTypes)
+        {
+            if (j.jumpName == type) return j;
+        }
+        return null;
+    }
+
+    private JumpData FindBest(Skater s, int TP, int SC, int LP, int FP, int LZ, int AL, int spinTime, int stepTime, int jumpTime)
+    {
+        JumpData best = null;
+        foreach (var j in s.jumpTypes)
+        {
+            // è·³è¿‡å·²ç”¨æ»¡çš„
+            if (j.jumpName == jumpType.Toeloop && TP >= 2) continue;
+            if (j.jumpName == jumpType.Salchow && SC >= 2) continue;
+            if (j.jumpName == jumpType.Loop && LP >= 2) continue;
+            if (j.jumpName == jumpType.Flip && FP >= 2) continue;
+            if (j.jumpName == jumpType.Lutz && LZ >= 2) continue;
+            if (j.jumpName == jumpType.Axel && AL >= 2) continue;
+            if (j.jumpName == jumpType.Spin && spinTime >= 1) continue;
+            if (j.jumpName == jumpType.StepSequence && stepTime >= 2) continue;
+            // è·³è·ƒå·²æ»¡7ä¸ªå°±è·³è¿‡è·³è·ƒç±»
+            if (jumpTime >= 7 && j.jumpName <= jumpType.Axel) continue;
+
+            if (best == null || j.baseScore > best.baseScore) best = j;
+        }
+        return best;
+    }
+
+    public void ShowListGener(Skater s)
+    {
+        // æ¸…ç©ºæ‰€æœ‰å‘
+        foreach (var se in s.ShowList)
+        {
+            se.jump.Clear();
+        }
+
+        float ageMultiplier = 1f;
+        if (s.age <= 9) ageMultiplier = 0.3f;
+        else if (s.age <= 13) ageMultiplier = 0.5f;
+        else if (s.age <= 17) ageMultiplier = 0.8f;
+        else if (s.age <= 21) ageMultiplier = 1.25f;
+        else if (s.age <= 25) ageMultiplier = 0.9f;
+        else ageMultiplier = 0.6f;
+
+        int jumpTime = 0, stepTime = 0, spinTime = 0;
+        int combineJump2 = 0, combineJump3 = 0;
+        int TP = 0, SC = 0, LP = 0, FP = 0, LZ = 0, AL = 0;
+
+        for (int i = 0; i < s.ShowList.Count; i++)
+        {
+            var se = s.ShowList[i];
+
+            // ===== æœ€å3ä¸ªå‘ï¼šä¼˜å…ˆå¡« Spin å’Œ StepSequence =====
+            if (i >= 7)
+            {
+                if (spinTime < 1)
+                {
+                    JumpData spin = FindJump(s, jumpType.Spin);
+                    if (spin != null) { se.jump.Add(spin); spinTime++; continue; }
+                }
+                else if (stepTime < 2)
+                {
+                    JumpData step = FindJump(s, jumpType.StepSequence);
+                    if (step != null) { se.jump.Add(step); stepTime++; continue; }
+                }
+                continue; // æ²¡æœ‰å°±ç•™ç©º
+            }
+
+            // ===== ç¬¬7ä¸ªè·³è·ƒå‘ï¼šå¦‚æœè¿˜æ²¡æœ‰Axelï¼Œå¼ºåˆ¶æ”¾ä¸€ä¸ª =====
+            if (i == 6 && AL == 0)
+            {
+                JumpData axel = FindJump(s, jumpType.Axel);
+                if (axel != null)
+                {
+                    se.jump.Add(axel);
+                    AL++; jumpTime++;
+                    continue;
+                }
+            }
+
+            // ===== å†³å®šè¿™ä¸ªå‘æ˜¯å•è·³è¿˜æ˜¯è¿è·³ =====
+            int loop = 1;
+            if (combineJump3 < 1 && Random.Range(0f, 1f) < 0.3f * ageMultiplier)
+                loop = 3;
+            else if (combineJump2 < 2 && Random.Range(0f, 1f) < 0.4f * ageMultiplier)
+                loop = 2;
+
+            // è¿è·³æ•°å·²æ»¡å°±å¼ºåˆ¶å•è·³
+            if (combineJump2 + combineJump3 >= 3) loop = 1;
+
+            // ===== å¡«è·³è·ƒ =====
+            for (int m = 0; m < loop; m++)
+            {
+                JumpData best;
+                if (m == 0)
+                {
+                    // ç¬¬ä¸€è·³ï¼šé€‰åŸºç¡€åˆ†æœ€é«˜çš„
+                    best = FindBest(s, TP, SC, LP, FP, LZ, AL, spinTime, stepTime, jumpTime);
+                }
+                else
+                {
+                    // è¿è·³ç¬¬äºŒã€ä¸‰è·³ï¼šåªèƒ½æ˜¯ Toeloop æˆ– Loop
+                    if (Random.Range(0f, 1f) < 0.5f)
+                        best = FindJump(s, jumpType.Toeloop);
+                    else
+                        best = FindJump(s, jumpType.Loop);
+                }
+
+                if (best == null) break; // æ²¡å¾—é€‰äº†å°±åœ
+
+                // è®¡æ•°
+                if (best.jumpName == jumpType.Toeloop) { TP++; jumpTime++; }
+                else if (best.jumpName == jumpType.Salchow) { SC++; jumpTime++; }
+                else if (best.jumpName == jumpType.Loop) { LP++; jumpTime++; }
+                else if (best.jumpName == jumpType.Flip) { FP++; jumpTime++; }
+                else if (best.jumpName == jumpType.Lutz) { LZ++; jumpTime++; }
+                else if (best.jumpName == jumpType.Axel) { AL++; jumpTime++; }
+
+                se.jump.Add(best);
+            }
+
+            // è®°å½•è¿è·³æ•°
+            if (loop == 2) combineJump2++;
+            else if (loop == 3) combineJump3++;
+        }
+    }
+
+    public void AutoShowList(Skater s)
+    {
+        ShowListGener(s);
+        PopupManager.Instance.RefreshShowList(s);
     }
 
     private void SkillListGener(Skater s, ActiveComp c)
@@ -363,8 +586,11 @@ public class CompetitionManager : MonoBehaviour
         else if (s.age <= 25) ageMultiplier = 0.8f;
         else ageMultiplier = 0.6f;
 
-        while (s.jumpTypes.Count < 8)
+        int times = 0;
+
+        while (s.jumpTypes.Count < 8&&times<12)
         {
+            times++;
             float k = Random.Range(0f, 1f);
             switch (c.compType)
             {
@@ -444,15 +670,15 @@ public class CompetitionManager : MonoBehaviour
     }
     #endregion
 
-    #region ±íÑİÈüÏà¹Ø
+    #region è¡¨æ¼”èµ›ç›¸å…³
     private void SettleExhibition(List<Skater> mySkaters, ActiveComp comp)
     {
         List<string> resultMsg = new List<string>();
         foreach (var s in mySkaters)
         {
             s.fans += 50;
-            s.LiveList.Add($"{comp.compName} ±íÑİÈü³öÑİ");
-            resultMsg.Add($"{s.name} ²Î¼ÓÁË{comp.compName}£¬·ÛË¿+50");
+            s.LiveList.Add($"{comp.compName} è¡¨æ¼”èµ›å‡ºæ¼”");
+            resultMsg.Add($"{s.name} å‚åŠ äº†{comp.compName}ï¼Œç²‰ä¸+50");
         }
         GameManager.Instance.currentSaveData.money += comp.award;
         PopupManager.Instance.MessagePop(resultMsg);
@@ -467,7 +693,7 @@ public class CompetitionManager : MonoBehaviour
             SkillData = JsonUtility.FromJson<skillList>(json.text);
     }
 
-    //´´½¨¼¼ÄÜ,¸ÅÂÊÎÊÌâÔÚµ÷ÓÃµÄÊ±ºòµ÷Õû
+    //åˆ›å»ºæŠ€èƒ½,æ¦‚ç‡é—®é¢˜åœ¨è°ƒç”¨çš„æ—¶å€™è°ƒæ•´
     public void CreateSkill(Skater S, string ID)
     {
         S.skills.Add(new skill { skillID = ID, level = 1 });
@@ -482,8 +708,8 @@ public class CompetitionManager : MonoBehaviour
         return null;
     }
 
-    //skill Ğ§¹û
-    private void ApplySkills(Skater S, JumpData jump, ref float skillBonus, ref float extraScore)
+    //skill æ•ˆæœ
+    private void ApplySkills(Skater S, JumpData jump, ref float skillBonus, ref float extraScore,ref string text)
     {
         foreach (var sk in S.skills)
         {
@@ -492,7 +718,7 @@ public class CompetitionManager : MonoBehaviour
             if (sk.level < 1 || sk.level > config.levels.Count) continue;
             SkillLevelData lv = config.levels[sk.level - 1];
 
-            if (Random.Range(0f, 1f) >= lv.triggerRate) continue; // Ã»´¥·¢¾ÍÌø¹ı
+            if (Random.Range(0f, 1f) >= lv.triggerRate) continue; // æ²¡è§¦å‘å°±è·³è¿‡
 
             switch (config.Type)
             {
@@ -511,11 +737,12 @@ public class CompetitionManager : MonoBehaviour
                         skillBonus += lv.number;
                     break;
             }
+            text += $"{config.skillName}å‘åŠ¨æˆåŠŸ!\n"+$"{config.description}\n";
         }
     }
     #endregion
 
-    #region ¶ÁĞ´jumpConfig
+    #region è¯»å†™jumpConfig
     public void jumpConfig()
     {
         TextAsset json = Resources.Load<TextAsset>("jumpConfigs");
@@ -523,7 +750,7 @@ public class CompetitionManager : MonoBehaviour
     }
     #endregion
 
-    #region »ñÈ¡jsonÅäÖÃ
+    #region è·å–jsoné…ç½®
     public JumpRotationData GetJumpRotationData(jumpType type, int k)
     {
         foreach (var config in jumpConfigData.JumpConfigs)
@@ -537,6 +764,29 @@ public class CompetitionManager : MonoBehaviour
             }
         }
         return null;
+    }
+    #endregion
+
+    #region è·å–ç¼©å†™
+    public string GetText(jumpType j)
+    {
+        switch (j)
+        {
+            case jumpType.Toeloop:
+                return "T";
+            case jumpType.Salchow:
+                return "S";
+            case jumpType.Loop:
+                return "Lo";
+            case jumpType.Flip:
+                return "F";
+            case jumpType.Lutz:
+                return "Lz";
+            case jumpType.Axel:
+                return "A";
+            default:
+                return "";
+        }
     }
     #endregion
 }

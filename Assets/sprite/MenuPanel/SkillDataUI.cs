@@ -19,8 +19,8 @@ public class SkillDataUI : MonoBehaviour
         currentLevel = s.level;
         SkillInfoPanel = Panel;
         sk = CompetitionManager.Instance.GetSkillByID(s.skillID);
-        if (sk == null) return;
-        NameText.text = sk.skillName;
+        if (sk == null) { NameText.text = "null"; return; }
+        NameText.text = $"{sk.skillName}"+$"Lv.{currentLevel}";
         SkillBtn.onClick.AddListener(() => PanelSet(sk));
     }
 

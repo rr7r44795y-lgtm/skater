@@ -10,6 +10,7 @@ using Random = UnityEngine.Random;
 public class Skater
 {
     public string name;
+    public string spriteID;
     public int stamina;
     public int jump;
     public int spin;
@@ -25,10 +26,25 @@ public class Skater
     public currentType current = currentType.training;
     public trainType trainingType = trainType.jump;
     public List<JumpData> jumpTypes = new List<JumpData>();
-    public List<JumpData> ShowList = new List<JumpData>();
+    public List<ShowElement> ShowList = new List<ShowElement>();
     public List<skill> skills = new List<skill>();
     public List<string> LiveList = new List<string>();//生平经历
+
+    public Skater()
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            ShowList.Add(new ShowElement());
+        }
+    }
 }
+
+[Serializable]
+public class ShowElement
+{
+    public List<JumpData> jump = new List<JumpData>();
+}
+
 
 [Serializable]
 public class skill
@@ -250,6 +266,7 @@ public class GameManager : MonoBehaviour
         Skater s = new Skater();
         s.name = "甘棠";
         s.sex = Sex.girl;
+        s.spriteID = "girl_001";
         s.stamina = 100;
         s.jump = Random.Range(1, 100);
         s.dance = Random.Range(1, 100);
@@ -262,6 +279,7 @@ public class GameManager : MonoBehaviour
         Skater a = new Skater();
         a.name = "老邓";
         a.sex = Sex.boy;
+        a.spriteID = "boy_001";
         a.stamina = 100;
         a.jump = Random.Range(1, 100);
         a.dance = Random.Range(1, 100);
@@ -425,6 +443,9 @@ public class GameManager : MonoBehaviour
         Message.Add("虽然是富二代，但是父亲告诉你，如果赚不到钱，也不用回去找他要；这个俱乐部是你自己非要自负盈亏的。");
         Message.Add("而在你拿到这家俱乐部时，还有两名为追梦而不愿意离去的选手。");
         Message.Add("选手在平时也会努力训练，但很多时候也需要你给他们专业性的指导。");
+        Message.Add("例如,在面对比赛的时候，如果没有给选手精心编排节目单，就会导致选手失利.....");
+        Message.Add("在获得比赛的名次以后，会得到相应的奖励，俱乐部也会起死回生..");
+        Message.Add("请加油吧!为了不被他人用失望的眼神看待!");
         Message.Add("点击选手，可查看个人信息；点击场馆设施可选择升级；后续也会开放更多游戏内容，敬请期待");
         PopupManager.Instance.MessagePop(Message);
         currentSaveData.newGame = false;    }

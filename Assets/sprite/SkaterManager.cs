@@ -46,6 +46,10 @@ public class SkaterManager : MonoBehaviour
                     int k = Random.Range(0, 2);
                     if (k == 0) { s.sex = Sex.girl; }
                     else { s.sex = Sex.boy; }
+
+                    if (s.sex == Sex.girl) s.spriteID = "girl_" + Random.Range(1, 8).ToString("D3");
+                    else s.spriteID = "boy_" + Random.Range(1, 3).ToString("D3");
+
                     s.name = ReadAndWrite(s.sex);
                     s.personality = personType.lazy;
 
@@ -56,7 +60,15 @@ public class SkaterManager : MonoBehaviour
                     s.spin = Random.Range(1, lowNumber);
                     s.fans = Random.Range(1, lowNumber);
                     s.skaterType = skaterType.candidate;
-                    s.speed = Random.Range(320, 401);
+                    s.speed = Random.Range(95, 135);
+                    int m = Random.Range(0,6);
+                    int[] list={ 1, 2, 6, 7, 11, 12, 18, 19, 28, 30};
+                    do {
+                        string ID = "skill_"+list[Random.Range(0, 10)].ToString("D3");
+                        if (s.skills.Count >= 2) break;
+                        if (Random.Range(0f, 1f) < 0.3f) CompetitionManager.Instance.CreateSkill(s, ID);
+                        m--;
+                            } while (m != 0);
                     CandidateSkater.Add(s);
                 }
                 break;
@@ -70,6 +82,9 @@ public class SkaterManager : MonoBehaviour
                     s.name = ReadAndWrite(s.sex);
                     s.personality = personType.lazy;
 
+                    if (s.sex == Sex.girl) s.spriteID = "girl_" + Random.Range(1, 8).ToString("D3");
+                    else s.spriteID = "boy_" + Random.Range(1, 3).ToString("D3");
+
                     s.stamina = 100;
                     s.skaterType = skaterType.candidate;
                     s.jump = Random.Range(1, middleNumber);
@@ -77,7 +92,16 @@ public class SkaterManager : MonoBehaviour
                     s.age = Random.Range(6, 18);
                     s.spin = Random.Range(1, middleNumber);
                     s.fans = Random.Range(1, middleNumber);
-                    s.speed = Random.Range(320, 401);
+                    s.speed = Random.Range(95, 135);
+                    int m = Random.Range(0, 6);
+                    int[] list = { 1, 2, 3,4,6, 7,9,10, 11, 12,15,16, 18, 19,25,27, 28, 30 };
+                    do
+                    {
+                        string ID = "skill_" + list[Random.Range(0, 10)].ToString("D3");
+                        if (s.skills.Count >= 2) break;
+                        if (Random.Range(0f, 1f) < 0.35f) CompetitionManager.Instance.CreateSkill(s, ID);
+                        m--;
+                    } while (m != 0);
                     CandidateSkater.Add(s);
                 }
                 break;
@@ -92,6 +116,9 @@ public class SkaterManager : MonoBehaviour
 
                     s.name = ReadAndWrite(s.sex);
 
+                    if (s.sex == Sex.girl) s.spriteID = "girl_" + Random.Range(1, 8).ToString("D3");
+                    else s.spriteID = "boy_" + Random.Range(1, 3).ToString("D3");
+
                     s.skaterType = skaterType.candidate;
                     s.personality = personType.lazy;
 
@@ -101,7 +128,15 @@ public class SkaterManager : MonoBehaviour
                     s.age = Random.Range(3, 15);
                     s.spin = Random.Range(1, highNumber);
                     s.fans = Random.Range(1, highNumber);
-                    s.speed = Random.Range(320, 401);
+                    s.speed = Random.Range(95, 135);
+                    int m = Random.Range(0, 10);
+                    do
+                    {
+                        string ID = "skill_" + Random.Range(1, 31).ToString("D3");
+                        if (s.skills.Count >= 2) break;
+                        if (Random.Range(0f, 1f) < 0.4f) CompetitionManager.Instance.CreateSkill(s, ID);
+                        m--;
+                    } while (m != 0);
                     CandidateSkater.Add(s);
                 }
                 break;
@@ -236,7 +271,6 @@ public class SkaterManager : MonoBehaviour
         DeletList.Clear();
     }
     #endregion
-
 
     [Header("Ğû´«ÕĞÆ¸skater")]
     public int lowMoney;

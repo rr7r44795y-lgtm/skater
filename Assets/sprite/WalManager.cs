@@ -58,13 +58,10 @@ public class WalManager : MonoBehaviour
 
     private void CopyPrefab(Skater skater = null)
     {
-        //赋值预制体，这个是你给我写的
-        GameObject guest = Instantiate(CustomPrefab,transform);
-        guest.transform.position = new Vector3(
-    Random.Range(-5f, 5f),
-    Random.Range(-3f, 3f),
-    0
-);
+        CustomPrefab.SetActive(false); // 先关掉，Instantiate 不会触发 Start
+        GameObject guest = Instantiate(CustomPrefab, transform);
+        CustomPrefab.SetActive(true); // 预制体恢复，不影响下次用
+
         Walk walk = guest.GetComponent<Walk>();
         walk.waypoints = waypoints;
         walk.trainingWaypoints = trainingWaypoints;
@@ -74,7 +71,10 @@ public class WalManager : MonoBehaviour
         walk.TrainingPoint = TrainingPoint;
         walk.skater = skater;
         if (skater == null) CurrentCustom++;
-        if (skater != null) walk.speed = skater.speed;
+        if (skater != null) { walk.speed = skater.speed; }
+        else { walk.speed = Random.Range(95,145); }
+
+            guest.SetActive(true); // 赋值完再激活，这时候 Start 才跑
     }
 
 }

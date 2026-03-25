@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Image = UnityEngine.UI.Image;
-using static System.Net.Mime.MediaTypeNames;
 using Random = UnityEngine.Random;
 using TMPro;
 
@@ -39,265 +38,180 @@ public class Walk : MonoBehaviour
     public Transform TrainingPoint;
     public Skater skater;
     public Button skaterBtn;
-    public float speed = 350f;
+    public float speed = 120f;
     public Image outline;
     public Image innerImage;
 
-    private bool isWandering = false;
     private bool isLeaving = false;
-    private bool isWaiting = false;
-    private bool isEntered = true;
-    private bool isInTrainingArea = false;
-    private bool isTraing;
     private bool isCustom = true;
     private Transform target;
     List<int> visited = new List<int>();
+    private Sprite[] frames;
 
-    #region 初始化函数
-    // Start is called before the first frame update
+    #region 初始化
     void Start()
     {
         if (skater != null) isCustom = false;
 
-        if(isCustom){
-            innerImage.color = new Color(
-   Random.Range(0.4f, 1f),
-    Random.Range(0.4f, 1f),
-    Random.Range(0.4f, 1f),0.5f
-    );
-            outline.enabled = false;
-        }
-        else
-        {
-            innerImage.color = new Color(
-   Random.Range(0.6f, 1f),
-    Random.Range(0.6f, 1f),
-    Random.Range(0.6f, 1f)
-    );
-
-            StartCoroutine(GetRoleType());
-            skaterBtn = GetComponent<Button>();
-            skaterBtn.enabled = true;
-            skaterBtn.onClick.AddListener(OnClicked);
-            StartCoroutine(ColorChange());
-        }
-
-        if (isEntered)
-        {
-            target = enterPoint;
-        }
-        else
-        {
-            PickNewTarget();
-        }
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-        if (GameManager.isPause) return;
-
         if (isCustom)
         {
-            if (target == null) return;
+            frames = Resources.LoadAll<Sprite>("Sprites/Custom/custom_"+Random.Range(1,9).ToString("D3"));
+            outline.enabled = false;
+            innerImage.color = Color.white;
+            target = enterPoint;
+            StartCoroutine(PlayAnimation());
+            StartCoroutine(CustomLoop());
+        }
+        else
+        {
+            frames = Resources.LoadAll<Sprite>("Sprites/skater/" +skater.spriteID);
+            skaterBtn = GetComponent<Button>();
+            innerImage.color = Color.white;
+            outline.enabled = false;
+            skaterBtn.enabled = true;
+            skaterBtn.onClick.AddListener(OnClicked);
+            StartCoroutine(PlayAnimation());
+            StartCoroutine(SkaterLoop());
+        }
+    }
+
+    void Update()
+    {
+        if (GameManager.isPause) return;
+        if (target == null) return;
         transform.position = Vector3.MoveTowards(
-            transform.position, target.position, speed * Time.deltaTime
-        );
-
-            if (Vector3.Distance(transform.position, target.position) < 0.1f)
-            {
-                if (isLeaving)
-                {
-                    Destroy(gameObject); // 到出口了，销毁
-                }
-                else if (isEntered)
-                {
-                    isEntered = false;
-                    PickNewTarget();
-                }
-                else
-                {
-                    if (!isWaiting) StartCoroutine(WaitThenMove());
-                }
-            }
-        }
-        else
-        {
-            if (target == null) return;
-            transform.position = Vector3.MoveTowards(
-                transform.position, target.position, speed * Time.deltaTime
-            );
-
-            if (Vector3.Distance(transform.position, target.position) < 0.1f)
-            {
-                if (isLeaving)
-                {
-                    Destroy(gameObject);
-                }
-                else if (isTraing)
-                {
-                    target = null;
-                    if (!isWaiting && isInTrainingArea) StartCoroutine(DoTraining());
-                    else if (!isWaiting && !isInTrainingArea) StartCoroutine(Wander());
-                }
-                else if (isTraing == false)
-                {
-                    target = null;
-                    if (isWandering)
-                    {
-                        if (!isWaiting) StartCoroutine(WanderRest());
-                    }
-                    else
-                    {
-                        if (!isWaiting) StartCoroutine(DoRelax());
-                    }
-                }
-            }
-        }
+            transform.position, target.position, speed * Time.deltaTime);
+        if (isLeaving && Vector3.Distance(transform.position, target.position) < 0.1f)
+            Destroy(gameObject);
     }
     #endregion
 
-    #region 选择地点和角色状态的函数
-    IEnumerator WaitThenMove()
+    #region 选手主循环
+    IEnumerator SkaterLoop()
     {
-        isWaiting = true;
-        target = null; // 停下来
-        yield return new WaitForSeconds(1.5f);
-        if(Random.value< 0.5f)
-        { 
-            target = exitPoint;
-            isLeaving = true;
-        }
-        else
-        {
-            PickNewTarget();
-        }
-        isWaiting = false;
-    }
+        UnityEngine.Debug.Log($"{skater.name} {skater.spriteID}");
+        // 1. 走到入口
+        target = enterPoint;
+        yield return new WaitUntil(() => Vector3.Distance(transform.position, target.position) < 0.1f);
 
-    IEnumerator GetRoleType()
-    {
+        // 2. 主循环
         while (true)
         {
-                if (target == null) // 到了才切换
-                {
-                    if (skater.current == currentType.training)
-                    {
-                        isTraing = true;
-
-                        if (trainingWaypoints != null && trainingWaypoints.Length > 0)
-                             {
-                        isInTrainingArea = true;
-                        target = trainingWaypoints[Random.Range(0, trainingWaypoints.Length)]; }
-                        else
-                              target = TrainingPoint;
-                    }
-                    else
-                    {
-                        isTraing = false;
-                        isInTrainingArea = false;
-                        target = relaxPoint;
-                    }
-                }
-            yield return new WaitForSeconds(0.1f);
-        }
-    }
-
-    IEnumerator ColorChange()
-    {
-        while (true)
-        {
-            outline.color = (outline.color == Color.white)
-              ? new Color(1f, 0.84f, 0f)
-              : Color.white;
-            yield return new WaitForSeconds(Random.Range(0.5f, 1.5f));
-        }
-    }
-    #endregion
-
-    #region 选择地点
-    private void PickNewTarget()
-    {
-        if(isCustom)
-        {
-            List<int> unvisited = new List<int>();
-            for(int i = 0; i < waypoints.Length; i++)
-            {
-            if (!visited.Contains(i)) unvisited.Add(i);
-            }
-
-            if(unvisited.Count == 0)
-      
+            // 检查比赛
+            if (skater.isCompeting)
             {
                 target = exitPoint;
                 isLeaving = true;
-                return;
+                yield break;
             }
 
-            int pick = unvisited[Random.Range(0, unvisited.Count)];
-            visited.Add(pick);
-            target = waypoints[pick];
+            // 3. 根据状态选点
+            if (skater.current == currentType.training)
+            {
+                if (trainingWaypoints != null && trainingWaypoints.Length > 0)
+                    target = trainingWaypoints[Random.Range(0, trainingWaypoints.Length)];
+                else
+                    target = TrainingPoint;
+            }
+            else
+            {
+                target = relaxPoint;
+            }
+
+            // 4. 等走到
+            yield return new WaitUntil(() => Vector3.Distance(transform.position, target.position) < 0.1f);
+
+            // 5. 再检查一次比赛（走的过程中可能变了）
+            if (skater.isCompeting)
+            {
+                target = exitPoint;
+                isLeaving = true;
+                yield break;
+            }
+
+            // 6. 执行对应逻辑
+            target = null;
+            if (skater.current == currentType.training)
+            {
+                if (skater.stamina > 0 && Random.value < 0.98f)
+                {
+                    Training(skater);
+                }
+                else
+                {
+                    skater.current = currentType.relax;
+                }
+                yield return new WaitForSeconds(3f);
+            }
+            else
+            {
+                Relax(skater);
+                // 20% 概率闲逛一下再回去
+                if (skater.stamina < 100 && Random.value < 0.2f)
+                {
+                    target = waypoints[Random.Range(0, waypoints.Length)];
+                    yield return new WaitUntil(() => Vector3.Distance(transform.position, target.position) < 0.1f);
+                    target = null;
+                    yield return new WaitForSeconds(Random.Range(2f, 5f));
+                }
+                else
+                {
+                    yield return new WaitForSeconds(2f);
+                }
+            }
         }
-        else
-        {
-            target = waypoints[Random.Range(0, waypoints.Length)];
-        }
-        
     }
     #endregion
 
-    #region 训练和休息的协程函数
-    IEnumerator DoTraining()
+    #region 路人主循环
+    IEnumerator CustomLoop()
     {
-        isWaiting = true;
-        if (skater.stamina > 0 && Random.value < 0.98f)
-        {
-            if (Random.value < 0.98f)
-            {
-                Training(skater);
-            }
-            else
-                PickNewTarget();
-        }
-        else
-        {
-            skater.current = currentType.relax;
-        }
+        // 走到入口
+        yield return new WaitUntil(() => Vector3.Distance(transform.position, target.position) < 0.1f);
 
-        yield return new WaitForSeconds(3f);
-        isWaiting = false;
+        // 逛点
+        while (true)
+        {
+            PickNewTarget();
+            if (isLeaving) yield break;
+
+            yield return new WaitUntil(() => Vector3.Distance(transform.position, target.position) < 0.1f);
+            target = null;
+            yield return new WaitForSeconds(1.5f);
+        }
     }
 
-    IEnumerator DoRelax()
+    private void PickNewTarget()
     {
-        isWaiting = true;
-        Relax(skater);
-
-        if (skater.stamina < 100 && Random.value < 0.2f)
+        List<int> unvisited = new List<int>();
+        for (int i = 0; i < waypoints.Length; i++)
         {
-            isWandering = true;
-            PickNewTarget(); // 20% 概率去逛一圈
+            if (!visited.Contains(i)) unvisited.Add(i);
         }
 
-        yield return new WaitForSeconds(2f);
-        isWaiting = false;
-    }
+        if (unvisited.Count == 0 || Random.value < 0.5f)
+        {
+            target = exitPoint;
+            isLeaving = true;
+            return;
+        }
 
-    IEnumerator Wander()
-    {
-        isWaiting = true;
-        yield return new WaitForSeconds(Random.Range(2f, 5f));
-        isInTrainingArea = true; // 回归训练状态，GetRoleType 会分配训练点
-        isWaiting = false;
+        int pick = unvisited[Random.Range(0, unvisited.Count)];
+        visited.Add(pick);
+        target = waypoints[pick];
     }
+    #endregion
 
-    IEnumerator WanderRest()
+    #region 动画变换
+    IEnumerator PlayAnimation()
     {
-        isWaiting = true;
-        yield return new WaitForSeconds(Random.Range(2f, 5f));
-        isWandering = false;
-        isWaiting = false;
+        int index = 0;
+        while (true)
+        {
+            innerImage.sprite = frames[index];
+            index = (index + 1) % frames.Length;
+            yield return new WaitForSeconds(0.15f); // 每帧间隔，越小越快
+        }
     }
     #endregion
 
@@ -305,7 +219,7 @@ public class Walk : MonoBehaviour
     private void Training(Skater skater)
     {
         trainType Type = skater.trainingType;
-        int num = UnityEngine.Random.Range(1, 5);
+        int num = Random.Range(1, 10);
         switch (Type)
         {
             case trainType.jump:
@@ -315,7 +229,6 @@ public class Walk : MonoBehaviour
                         jumpType[] allJumps = { jumpType.Toeloop, jumpType.Salchow, jumpType.Loop,
                                 jumpType.Flip, jumpType.Lutz, jumpType.Axel };
 
-                        // 找出还没学会的
                         List<jumpType> unlearned = new List<jumpType>();
                         foreach (var j in allJumps)
                         {
@@ -336,23 +249,55 @@ public class Walk : MonoBehaviour
                             PopupManager.Instance?.MessagePop(msg);
                             break;
                         }
+
+                        // 6个跳跃学完了，补 Spin 和 StepSequence
+                        if (unlearned.Count == 0 && skater.jumpTypes.Count < 8)
+                        {
+                            bool hasSpin = false, hasStep = false;
+                            foreach (var owned in skater.jumpTypes)
+                            {
+                                if (owned.jumpName == jumpType.Spin) hasSpin = true;
+                                if (owned.jumpName == jumpType.StepSequence) hasStep = true;
+                            }
+                            if (!hasSpin)
+                            {
+                                JumpRotationData data = CompetitionManager.Instance.GetJumpRotationData(jumpType.Spin, 1);
+                                skater.jumpTypes.Add(new JumpData(jumpType.Spin, 1, 4, data.staminaCost, data.baseScore));
+                                List<string> msg = new List<string> { $"{skater.name}学会了Spin!" };
+                                PopupManager.Instance?.MessagePop(msg);
+                                break;
+                            }
+                            if (!hasStep)
+                            {
+                                JumpRotationData data = CompetitionManager.Instance.GetJumpRotationData(jumpType.StepSequence, 1);
+                                skater.jumpTypes.Add(new JumpData(jumpType.StepSequence, 1, 4, data.staminaCost, data.baseScore));
+                                List<string> msg = new List<string> { $"{skater.name}学会了StepSequence!" };
+                                PopupManager.Instance?.MessagePop(msg);
+                                break;
+                            }
+                        }
                     }
                     else if (skater.jumpTypes.Count >= 8 && Random.Range(0f, 1f) < 0.3f)
                     {
-                        // 找没满级的跳跃
-                        List<JumpData> canLevel = new List<JumpData>();
+                        JumpData picked = null;
                         foreach (var j in skater.jumpTypes)
                         {
-                            if (j.rotation < j.maxRotation) canLevel.Add(j);
+                            if (j.rotation >= j.maxRotation) continue;
+                            if (j.jumpName == skater.trainingJump)
+                            {
+                                picked = j;
+                                break;
+                            }
                         }
-                        if (canLevel.Count > 0)
+                        if (picked != null)
                         {
-                            JumpData picked = canLevel[Random.Range(0, canLevel.Count)];
                             picked.exp += num;
+                            ShowPop($"{picked.jumpName} exp+{num}");
                             if (picked.exp >= picked.expToNext)
                             {
                                 RotationLvUP(skater, picked.jumpName);
                                 List<string> msg = new List<string> { $"{skater.name}的{picked.jumpName}升到{picked.rotation}圈!" };
+                                PopupManager.Instance?.MessagePop(msg);
                             }
                             break;
                         }
@@ -390,27 +335,18 @@ public class Walk : MonoBehaviour
     {
         skater.current = currentType.relax;
         skater.stamina = Mathf.Min(skater.stamina + 10, 100);
-        if (skater.stamina == 100) skater.current = currentType.training;
-        if (skater.stamina > 100) skater.stamina = 100;
-    }
-    #endregion
-
-    #region 时机函数
-    void OnDestroy()
-    {
-        if(isCustom)WalManager.CurrentCustom--;
-    }
-
-    private void OnClicked()
-    {
-        PopupManager.Instance?.SkaterInfoPop(skater);
+        if (skater.stamina >= 100)
+        {
+            skater.stamina = 100;
+            skater.current = currentType.training;
+        }
     }
     #endregion
 
     #region 圈数升级
-    private void RotationLvUP(Skater s,jumpType jump)
+    private void RotationLvUP(Skater s, jumpType jump)
     {
-        JumpData currentJump=null;
+        JumpData currentJump = null;
         foreach (var item in s.jumpTypes)
         {
             if (item.jumpName == jump)
@@ -419,30 +355,39 @@ public class Walk : MonoBehaviour
                 break;
             }
         }
-
         if (currentJump == null) return;
-        currentJump.rotation++;
+        if (currentJump.rotation >= currentJump.maxRotation) return;
 
+        currentJump.rotation++;
         JumpRotationData newData = CompetitionManager.Instance.GetJumpRotationData(jump, currentJump.rotation);
         if (newData != null)
         {
             currentJump.baseScore = newData.baseScore;
             currentJump.staminaCost = newData.staminaCost;
         }
-
-        // 重置经验
         currentJump.exp = 0;
-        currentJump.expToNext += 100;
+        currentJump.expToNext += 50;
+    }
+    #endregion
 
+    #region 点击事件
+    private void OnClicked()
+    {
+        PopupManager.Instance?.SkaterInfoPop(skater);
+    }
+    #endregion
+
+    #region 销毁
+    void OnDestroy()
+    {
+        if (isCustom) WalManager.CurrentCustom--;
     }
     #endregion
 
     #region 信息显示
     [Header("属性增长弹窗")]
     Queue<string> msgQueue = new Queue<string>();
-
     [SerializeField] private TextMeshProUGUI popText;
-
     private bool isShowing = false;
 
     public void ShowPop(string msg)
@@ -464,4 +409,5 @@ public class Walk : MonoBehaviour
         isShowing = false;
     }
     #endregion
+
 }

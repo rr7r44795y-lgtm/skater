@@ -15,12 +15,6 @@ public class SkaterCard : MonoBehaviour
     [SerializeField] private TextMeshProUGUI sexText;
     [SerializeField] private TextMeshProUGUI personalityText;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
     private void OnClicked()
     {
         PopupManager.Instance.SkaterInfoPop(skater);

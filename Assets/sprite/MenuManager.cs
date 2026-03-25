@@ -18,6 +18,7 @@ public class MenuManager : MonoBehaviour
     [SerializeField] private GameObject SkaterCreatePanel;
     [SerializeField] private GameObject SkaterChildPanel;
     [SerializeField] private GameObject SettingPanel;
+    [SerializeField] private GameObject PrivacyPanel;
 
     [Header  ("°´Å¥")]
     [SerializeField] private Button OpenPanelBtn;
@@ -30,6 +31,7 @@ public class MenuManager : MonoBehaviour
     [SerializeField] private Button CreateSkaterBtn;
     [SerializeField] private Button SettingBtn;
     [SerializeField] private Button MenuBtn;
+    [SerializeField] private Button PrivacyBtn;
 
     [Header("ºìµãºìµã£¡£¡")]
     [SerializeField] private GameObject RedTips;
@@ -63,6 +65,7 @@ public class MenuManager : MonoBehaviour
         SetActiveSkaterBtn.onClick.AddListener(() => OpenPanel(SkaterChildPanel));
         CreateSkaterBtn.onClick.AddListener(() => OpenPanel(SkaterCreatePanel));
         MenuBtn.onClick.AddListener(() => OpenPanel(MenuPanel));
+        PrivacyBtn.onClick.AddListener(() => OpenPanel(PrivacyPanel));
     }
 
     void Update()

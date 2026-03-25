@@ -43,11 +43,22 @@ public class PopupManager : MonoBehaviour
     [SerializeField] private Button ShowBtn;
     [SerializeField] private GameObject Change;
     [SerializeField] private Button ChangeBtn;//ShowList修改
+    [SerializeField] private GameObject ShowListPrefab;
+    [Tooltip("showlist里选择跳跃的根物体")]
+    [SerializeField] private GameObject PanelToPickJump;
+    [Tooltip("showlist里选择跳跃的滑动视图，用于盛放跳跃的预制体")]
+    [SerializeField] private GameObject PanelToPickJumpContent;
+    [Tooltip("选择跳跃时的清空选项，清空当前坑位列表")]
+    [SerializeField] private Button ClearBtn;
+    [Tooltip("选择节目单时标题的text")]
+    [SerializeField] private TextMeshProUGUI ShowListText;
 
     [Header("弹窗相关")]
     [SerializeField] private Button BackBtn;
     [SerializeField] private Button ConFirmBtn;
     [SerializeField] private Button SaveBtn;
+    [SerializeField] private Button pickJumpMaskBtn;
+    [SerializeField] private Button pickJumpConfirmBtn;
 
     private GameObject currentMessage;
     private bool isClicking = false;
@@ -75,13 +86,28 @@ public class PopupManager : MonoBehaviour
         BackBtn.onClick.AddListener(ClosedPanel);
         CloseBtn.onClick.AddListener(ClosedPanel);
     }
-    
-    private void Update(){
-       if(Input.GetMouseButtonDown(0)&&!isClicking&& messageActive) {
-          isClicking =true;
-          ShowNextMessage();
-          StartCoroutine(ResetClick());
-       }
+
+    private Vector2 downPos;
+
+    private void Update()
+    {
+        if (!messageActive) return;
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            downPos = Input.mousePosition;
+        }
+
+        if (Input.GetMouseButtonUp(0) && !isClicking)
+        {
+            float dist = Vector2.Distance(downPos, Input.mousePosition);
+            if (dist < 10f)
+            {
+                isClicking = true;
+                ShowNextMessage();
+                StartCoroutine(ResetClick());
+            }
+        }
     }
     #endregion
 
@@ -154,6 +180,7 @@ public class PopupManager : MonoBehaviour
         GameManager.Instance?.PauseGame();
         TrainingBtn.GetComponentInChildren<TextMeshProUGUI>().text = skater.skaterType == skaterType.active ? "训练" : "邀请";
         TrainingBtn.onClick.RemoveAllListeners();
+
         if (skater.skaterType == skaterType.active)
         {
             AutoTraining.gameObject.SetActive(true);
@@ -251,9 +278,11 @@ public class PopupManager : MonoBehaviour
         jumpBtn.onClick.RemoveAllListeners();
         ShowBtn.onClick.RemoveAllListeners();
         skillBtn.onClick.RemoveAllListeners();
+        ChangeBtn.onClick.RemoveAllListeners();
         jumpBtn.onClick.AddListener(() => JumpTab(skater));
         ShowBtn.onClick.AddListener(() => ShowTab(skater));
         skillBtn.onClick.AddListener(() => SkillTab(skater));
+        ChangeBtn.onClick.AddListener(() => CompetitionManager.Instance.AutoShowList(skater));
         currentTab = TabType.Show;
         JumpTab(skater);
     }
@@ -274,19 +303,61 @@ public class PopupManager : MonoBehaviour
             card.GetComponent<JumpDataUI>().Init(J);
         }
     }
-    
-    //这个暂时不写，我在考虑要怎么去写这个东西，因为固定十个位置，就不需要foreach吧
-    //感觉可以用别的写，然后更新的话也可以用别的方法
-    //感觉能写那种一个萝卜一个坑，然后要更新的话就改这个坑里的东西就行了
+
+    public void RefreshShowList(Skater s)
+    {
+        currentTab = TabType.Jump;
+        ShowTab(s);
+    }
+
     private void ShowTab(Skater s)
     {
         if (currentTab == TabType.Show) return;
         currentTab = TabType.Show;
         if (Change != null) Change.SetActive(true);
+
         foreach (Transform child in Root.transform)
         {
             Destroy(child.gameObject);
         }
+
+        for (int i = 0; i < 10; i++)
+        {
+            GameObject card = Instantiate(ShowListPrefab, Root.transform);
+            string display = (s.ShowList[i].jump.Count > 0) ? ShowElementToString(s.ShowList[i]) : "空";
+            card.GetComponentInChildren<TextMeshProUGUI>().text = $"{i + 1}. {display}";
+
+            int index = i; // 闭包要用局部变量
+            card.GetComponent<Button>().onClick.AddListener(() => JumpPickPop(s, index));
+        }
+    }
+
+    private string ShowElementToString(ShowElement element)
+    {
+        string combo = "";
+        for (int j = 0; j < element.jump.Count; j++)
+        {
+            if (j > 0) combo += "+";
+            combo += JumpShortName(element.jump[j]);
+        }
+        return combo;
+    }
+
+    private string JumpShortName(JumpData j)
+    {
+        string name = "";
+        switch (j.jumpName)
+        {
+            case jumpType.Toeloop: name = "T"; break;
+            case jumpType.Salchow: name = "S"; break;
+            case jumpType.Loop: name = "Lo"; break;
+            case jumpType.Flip: name = "F"; break;
+            case jumpType.Lutz: name = "Lz"; break;
+            case jumpType.Axel: name = "A"; break;
+            case jumpType.Spin: name = "Sp"; break;
+            case jumpType.StepSequence: name = "StSq"; break;
+        }
+        return $"{j.rotation}{name}";
     }
 
     private void SkillTab(Skater s)
@@ -324,7 +395,6 @@ public class PopupManager : MonoBehaviour
         skaterInfoPanel.SetActive(false);
         SkaterInfoMaskPanel.SetActive(false);
         ChoosePop.SetActive(false);
-        if (compInstance != null) { Destroy(compInstance); compInstance = null; }
         currentSkater = null;
         TryHideMask();
     }
@@ -360,17 +430,161 @@ public class PopupManager : MonoBehaviour
     #endregion
 
     #region 比赛弹窗
-    public void CompPop(string name,string msg)
+    public void CompPop(string name,string msg,System.Action onClose = null)
     {
         GameManager.Instance?.PauseGame();
         if (compInstance != null) { Destroy(compInstance); compInstance = null; }
         MaskPanel.SetActive(true);
         compInstance = Instantiate(CompPopup, transform);
-        compInstance.GetComponent<CompResultUI>().Init(name, msg);
+        compInstance.GetComponent<CompResultUI>().Init(name, msg,onClose);
+    }
+
+    public void OnCompPopClosed()
+    {
+        compInstance = null;
+        TryHideMask();
     }
     #endregion
 
-    #region 多选择弹窗,没写，别管了，嗯……难道这里传预制体列表比较好吗
+    #region 多选择弹窗，选择跳跃
+    private void JumpPickPop(Skater s, int slotIndex)
+    {
+        foreach (Transform child in PanelToPickJumpContent.transform)
+        {
+            Destroy(child.gameObject);
+        }
+        PanelToPickJump.SetActive(true);
+        pickJumpMaskBtn.onClick.RemoveAllListeners();
+        pickJumpMaskBtn.onClick.AddListener(ClosePickPop);
+        ClearBtn.onClick.RemoveAllListeners();
+        List<JumpData> SelectJump = new List<JumpData>();
+        foreach (var item in s.jumpTypes)
+        {
+            GameObject card = Instantiate(jumpPrefab, PanelToPickJumpContent.transform);
+            card.GetComponent<JumpDataUI>().Pick(SelectJump, item);
+        }
+        ShowListText.text = "请选择你要编排的节目~";
+        pickJumpConfirmBtn.onClick.RemoveAllListeners();
+        pickJumpConfirmBtn.onClick.AddListener(() => PickPopConfirm(SelectJump, s, slotIndex));
+        ClearBtn.onClick.AddListener(() => {
+            SelectJump.Clear();
+            foreach (Transform child in PanelToPickJumpContent.transform)
+            {
+                var ui = child.GetComponent<JumpDataUI>();
+                if (ui != null) ui.ResetSelect();
+            }
+            ShowListText.text = "请选择你要编排的节目~";
+        });
+    }
 
+    public void RefreshText(List<JumpData> list)
+    {
+        string text = "当前选择跳跃为:";
+        foreach(var item in list)
+        {
+            text += $"{item.rotation}" + CompetitionManager.Instance.GetText(item.jumpName)+"+";
+        }
+        text = text.TrimEnd('+');
+        ShowListText.text = text;
+    }
+
+    private void PickPopConfirm(List<JumpData> J, Skater s, int slotIndex)
+    {
+        var (allow, reason) = CheckIsAllow(J, s, slotIndex);
+        if (!allow)
+        {
+            List<string> msg = new List<string> { reason };
+            MessagePop(msg);
+            return;
+        }
+
+        ShowElement se = new ShowElement();
+        foreach (var item in J)
+        {
+            se.jump.Add(item);
+        }
+        s.ShowList[slotIndex] = se;  // 漏了
+        ClosePickPop();               // 漏了
+        RefreshShowList(s);
+    }
+
+    private void ClosePickPop()
+    {
+        PanelToPickJump.SetActive(false);
+    }
+
+    private (bool, string) CheckIsAllow(List<JumpData> newJumps, Skater s, int slotIndex)
+    {
+        int jumpTime = 0, stepTime = 0, spinTime = 0;
+        int combineJump2 = 0, combineJump3 = 0;
+        int TP = 0, SC = 0, LP = 0, FP = 0, LZ = 0, AL = 0;
+
+        // 统计现有节目单，跳过要替换的坑
+        for (int idx = 0; idx < s.ShowList.Count; idx++)
+        {
+            if (idx == slotIndex) continue;
+            var item = s.ShowList[idx];
+            if (item.jump.Count == 0) continue;
+
+            if (item.jump.Count == 2) combineJump2++;
+            else if (item.jump.Count == 3) combineJump3++;
+
+            for (int i = 0; i < item.jump.Count; i++)
+            {
+                var jump = item.jump[i];
+
+                if (i == 0 || jump.jumpName == jumpType.Spin || jump.jumpName == jumpType.StepSequence)
+                {
+                    switch (jump.jumpName)
+                    {
+                        case jumpType.Toeloop: TP++; jumpTime++; break;
+                        case jumpType.Salchow: SC++; jumpTime++; break;
+                        case jumpType.Loop: LP++; jumpTime++; break;
+                        case jumpType.Flip: FP++; jumpTime++; break;
+                        case jumpType.Lutz: LZ++; jumpTime++; break;
+                        case jumpType.Axel: AL++; jumpTime++; break;
+                        case jumpType.Spin: spinTime++; break;
+                        case jumpType.StepSequence: stepTime++; break;
+                    }
+                }
+            }
+        }
+
+        // 连跳第二三跳只能是 Toeloop 或 Loop
+        for (int i = 1; i < newJumps.Count; i++)
+        {
+            if (newJumps[i].jumpName != jumpType.Toeloop && newJumps[i].jumpName != jumpType.Loop)
+                return (false, "连跳第二三跳只能是Toeloop或Loop!");
+        }
+
+        // 连跳数量检查
+        if (newJumps.Count == 3 && combineJump3 >= 1)
+            return (false, "三连跳最多只能有1组!");
+        if (newJumps.Count >= 2 && combineJump2 + combineJump3 >= 3)
+            return (false, "连跳最多只能有3组!");
+
+        // 跳跃总数
+        if (newJumps[0].jumpName <= jumpType.Axel && jumpTime >= 7)
+            return (false, "跳跃已达上限7个!");
+
+        // Spin 和 StepSequence 上限
+        if (newJumps[0].jumpName == jumpType.Spin && spinTime >= 1)
+            return (false, "Spin最多只能有1个!");
+        if (newJumps[0].jumpName == jumpType.StepSequence && stepTime >= 2)
+            return (false, "StepSequence最多只能有2个!");
+
+        // 同种跳跃最多2次
+        switch (newJumps[0].jumpName)
+        {
+            case jumpType.Toeloop: if (TP >= 2) return (false, "Toeloop已使用2次!"); break;
+            case jumpType.Salchow: if (SC >= 2) return (false, "Salchow已使用2次!"); break;
+            case jumpType.Loop: if (LP >= 2) return (false, "Loop已使用2次!"); break;
+            case jumpType.Flip: if (FP >= 2) return (false, "Flip已使用2次!"); break;
+            case jumpType.Lutz: if (LZ >= 2) return (false, "Lutz已使用2次!"); break;
+            case jumpType.Axel: if (AL >= 2) return (false, "Axel已使用2次!"); break;
+        }
+
+        return (true, "");
+    }
     #endregion
 }

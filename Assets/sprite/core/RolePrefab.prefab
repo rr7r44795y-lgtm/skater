@@ -220,6 +220,7 @@ MonoBehaviour:
   TrainingPoint: {fileID: 0}
   skater:
     name: 
+    spriteID: 
     stamina: 0
     jump: 0
     spin: 0
@@ -231,6 +232,7 @@ MonoBehaviour:
     isCompeting: 0
     skaterType: 0
     personality: 0
+    trainingJump: 0
     current: 0
     trainingType: 0
     jumpTypes: []
