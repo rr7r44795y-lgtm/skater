@@ -67,7 +67,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u5C3E\u90E8\u54E6\u51E0\u767E\u4E07Jon\u53CD\u9988i\u6211"
+  m_text: "\u5434\u8363\u5168\u90E8"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 19e489aa092765648a66413eae56de54, type: 2}
   m_sharedMaterial: {fileID: 9160744561604393892, guid: 19e489aa092765648a66413eae56de54, type: 2}
@@ -162,7 +162,6 @@ GameObject:
   - component: {fileID: 6790527181849193841}
   - component: {fileID: 5076228146454725577}
   - component: {fileID: 3876719825171047711}
-  - component: {fileID: 795868123081340651}
   m_Layer: 5
   m_Name: SkillPrefab
   m_TagString: Untagged
@@ -186,10 +185,10 @@ RectTransform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -40}
+  m_SizeDelta: {x: 0, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6790527181849193841
 CanvasRenderer:
@@ -239,7 +238,7 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 0}
+  m_TargetGraphic: {fileID: 4841311282352956005}
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
@@ -258,20 +257,6 @@ MonoBehaviour:
   NameText: {fileID: 9180270391399619246}
   SkillBtn: {fileID: 5076228146454725577}
   SkillInfoPanel: {fileID: 0}
---- !u!114 &795868123081340651
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5133410031633274414}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_HorizontalFit: 2
-  m_VerticalFit: 2
 --- !u!1 &7090934682464227931
 GameObject:
   m_ObjectHideFlags: 0
@@ -306,10 +291,10 @@ RectTransform:
   m_Father: {fileID: 8005924702212323258}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 487.68, y: 50.28}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: -40}
+  m_SizeDelta: {x: 0, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1198639606644751017
 CanvasRenderer:

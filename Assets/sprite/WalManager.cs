@@ -14,7 +14,7 @@ public class WalManager : MonoBehaviour
     [SerializeField] private Transform TrainingPoint;
     [SerializeField] private Transform relaxPoint;
 
-    public List<string> RoleName = new List<string>();
+    public static List<string> RoleName = new List<string>();
 
     private Skater skater;
     private int MaxCustom = 25;

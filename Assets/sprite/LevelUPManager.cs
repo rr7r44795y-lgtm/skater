@@ -148,6 +148,7 @@ public class LevelUPManager : MonoBehaviour
             club.isUpgrading = true;
             club.upgradeDays = 30;
             GameManager.Instance.currentSaveData.money -= M;
+            UIManager.Instance?.RefreshUI();
         },
         () =>
         {

@@ -321,6 +321,7 @@ public class CompetitionManager : MonoBehaviour
                 S.fans += 10;
             }
 
+            UIManager.Instance?.RefreshUI();
             S.LiveList.Add($"{comp.compName} 第{rank}名 得分:{scores[S]:F1}\n");
         }
 
@@ -681,6 +682,7 @@ public class CompetitionManager : MonoBehaviour
             resultMsg.Add($"{s.name} 参加了{comp.compName}，粉丝+50");
         }
         GameManager.Instance.currentSaveData.money += comp.award;
+        UIManager.Instance?.RefreshUI();
         PopupManager.Instance.MessagePop(resultMsg);
     }
     #endregion

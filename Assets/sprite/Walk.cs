@@ -89,7 +89,6 @@ public class Walk : MonoBehaviour
     #region 选手主循环
     IEnumerator SkaterLoop()
     {
-        UnityEngine.Debug.Log($"{skater.name} {skater.spriteID}");
         // 1. 走到入口
         target = enterPoint;
         yield return new WaitUntil(() => Vector3.Distance(transform.position, target.position) < 0.1f);

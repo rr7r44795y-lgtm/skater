@@ -1,6 +1,7 @@
+using System.Diagnostics;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
 public class CompResultUI : MonoBehaviour
 {
@@ -14,7 +15,7 @@ public class CompResultUI : MonoBehaviour
         nameText.text = name;
         RankText.text = rank;
         onCloseCallback = onClose;
-        closeBtn.onClick.AddListener(Close);
+        closeBtn.onClick.AddListener( Close);
     }
 
     public void Close()

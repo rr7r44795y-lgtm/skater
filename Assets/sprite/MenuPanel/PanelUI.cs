@@ -22,6 +22,7 @@ public class PanelUI : MonoBehaviour
     public void SkillSet(skillData sk, int level)
     {
         Root.SetActive(true);
+        MaskPanel.SetActive(true);
         NameText.text = sk.skillName + $" Lv.{level}";
         SkillLevelData lv = sk.levels[level - 1];
         NumberText.text = $"´¥·¢¸ÅÂÊ{lv.triggerRate * 100}%";

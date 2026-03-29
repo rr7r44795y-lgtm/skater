@@ -26,6 +26,7 @@ public class SkillDataUI : MonoBehaviour
 
     private void PanelSet(skillData sk)
     {
+        SkillInfoPanel.SetActive(true);
         SkillInfoPanel.GetComponent<PanelUI>().SkillSet(sk, currentLevel);
     }
 }

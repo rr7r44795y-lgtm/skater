@@ -336,6 +336,7 @@ public class SkaterManager : MonoBehaviour
                            GameManager.Instance.currentSaveData.createTime = Day;
                            GameManager.Instance.currentSaveData.money -= Money;
                            StartCoroutine(ConFirmToCreateSkater(L));
+                           UIManager.Instance?.RefreshUI();
                        },
                        () =>
                        {

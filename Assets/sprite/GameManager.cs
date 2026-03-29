@@ -211,6 +211,7 @@ public class SaveData
     public int createTime;
     public List<ScheduledComp> scheduledComps = new List<ScheduledComp>();
     public List<ActiveComp> activeComps = new List<ActiveComp>();
+    public List<StructSaveData> structures = new List<StructSaveData>();
 }
 
 public class GameManager : MonoBehaviour

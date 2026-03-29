@@ -80,6 +80,7 @@ public class ChooseSkaterUI : MonoBehaviour
                     if (GameManager.Instance.currentSaveData.money >= comp.fee * selectedList.Count)
                     {
                         GameManager.Instance.currentSaveData.money -= comp.fee * selectedList.Count;
+                        UIManager.Instance?.RefreshUI();
 
                         if (GameManager.Instance.currentSaveData.gameMonth == comp.month)
                         {
