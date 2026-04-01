@@ -5835,7 +5835,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -630, y: -1370}
+  m_SizeDelta: {x: -620.7239, y: -1386.6333}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &411491368
 MonoBehaviour:
@@ -16500,13 +16500,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   waypoints:
   - {fileID: 1671374767}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 645150363}
+  - {fileID: 1596825042}
+  - {fileID: 1877886672}
+  - {fileID: 1554662168}
+  - {fileID: 1519206219}
+  - {fileID: 1533899721}
+  - {fileID: 901330823}
+  - {fileID: 513011274}
+  - {fileID: 1592247880}
+  - {fileID: 946258235}
+  - {fileID: 140987086}
+  - {fileID: 233052940}
+  - {fileID: 1665156621}
+  - {fileID: 173593891}
+  - {fileID: 357216214}
+  - {fileID: 953927559}
+  - {fileID: 1952185175}
+  - {fileID: 1275375273}
+  - {fileID: 995643163}
   trainingWaypoints:
   - {fileID: 1282538207}
   - {fileID: 1212442597}
@@ -25797,7 +25809,7 @@ MonoBehaviour:
     m_Left: 0
     m_Right: 0
     m_Top: 0
-    m_Bottom: 0
+    m_Bottom: 200
   m_ChildAlignment: 4
   m_Spacing: 0
   m_ChildForceExpandWidth: 1
@@ -29001,17 +29013,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa26bdd8e7a27cd4888d5c077e38f01d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lowNumber: 0
-  middleNumber: 0
-  highNumber: 0
+  lowNumber: 100
+  middleNumber: 200
+  highNumber: 500
   CandidateSkater: []
   DeletList: []
-  lowMoney: 0
-  middleMoney: 0
-  highMoney: 0
-  lowDay: 0
-  middleDay: 0
-  highDay: 0
+  lowMoney: 30000
+  middleMoney: 50000
+  highMoney: 10000
+  lowDay: 30
+  middleDay: 45
+  highDay: 90
   LowBtn: {fileID: 1396063246}
   MiddleBtn: {fileID: 181498019}
   HighBtn: {fileID: 1772862583}
@@ -29609,7 +29621,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 0, y: 420}
+  m_AnchoredPosition: {x: 0, y: 550}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2070155236
