@@ -243,7 +243,8 @@ public class Walk : MonoBehaviour
                         if (unlearned.Count > 0 && Random.Range(0f, 1f) < 0.3f)
                         {
                             jumpType learned = unlearned[Random.Range(0, unlearned.Count)];
-                            skater.jumpTypes.Add(new JumpData(learned, 1, 2, 8, 4f));
+                            JumpRotationData data = CompetitionManager.Instance.GetJumpRotationData(learned, 1);
+                            skater.jumpTypes.Add(new JumpData(learned, 1, 4, data.staminaCost, data.baseScore));
                             List<string> msg = new List<string> { $"{skater.name}学会了{learned}!" };
                             PopupManager.Instance?.MessagePop(msg);
                             break;
