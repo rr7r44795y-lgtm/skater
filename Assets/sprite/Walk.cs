@@ -165,21 +165,42 @@ public class Walk : MonoBehaviour
     #region 路人主循环
     IEnumerator CustomLoop()
     {
-        // 走到入口
         yield return new WaitUntil(() => Vector3.Distance(transform.position, target.position) < 0.1f);
 
-        // 逛点
         while (true)
         {
-            PickNewTarget();
-            if (isLeaving) yield break;
+            // 随机决定去建筑还是去普通点
+            List<Transform> buildings = StructManager.Instance.GetActiveStructTransforms();
+            if (buildings.Count > 0 && Random.value < 0.4f)
+            {
+                target = buildings[Random.Range(0, buildings.Count)];
+                yield return new WaitUntil(() => Vector3.Distance(transform.position, target.position) < 0.1f);
 
-            yield return new WaitUntil(() => Vector3.Distance(transform.position, target.position) < 0.1f);
-            target = null;
-            yield return new WaitForSeconds(1.5f);
+                StructSlot slot = target.GetComponent<StructSlot>();
+                if (slot != null && slot.CanEnter())
+                {
+                    StructConfig config = slot.GetConfig();
+                    if (config.isCustom)
+                    {
+                        slot.Enter();
+                        GameManager.Instance.currentSaveData.money += config.customIncome;
+                        yield return new WaitForSeconds(2f);
+                        slot.Exit();
+                    }
+                }
+                target = null;
+                yield return new WaitForSeconds(1f);
+            }
+            else
+            {
+                PickNewTarget();
+                if (isLeaving) yield break;
+                yield return new WaitUntil(() => Vector3.Distance(transform.position, target.position) < 0.1f);
+                target = null;
+                yield return new WaitForSeconds(1.5f);
+            }
         }
     }
-
     private void PickNewTarget()
     {
         List<int> unvisited = new List<int>();

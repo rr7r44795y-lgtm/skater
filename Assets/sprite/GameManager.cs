@@ -206,6 +206,7 @@ public class SaveData
     public int gameYear;
     public int money;
     public bool newGame = true;
+    public bool moneyIsOver = false;
     public createType createType = createType.No;
     public ClubData club=new ClubData();
     public int createTime;
@@ -291,6 +292,10 @@ public class GameManager : MonoBehaviour
         a.personality = personType.lazy;
         currentSaveData.Skaters.Add(s);
         currentSaveData.Skaters.Add(a);
+        StructSaveData shop = new StructSaveData();
+        shop.structID = "struct_003"; 
+        shop.slotIndex = 0;          
+        currentSaveData.structures.Add(shop);
         SaveAllData();
     }
     #endregion
@@ -371,6 +376,7 @@ public class GameManager : MonoBehaviour
             {
                 currentSaveData.gameMonth += 1;
                 currentSaveData.gameDay = 1;
+                CheckMaintenance();
                 SaveAllData();
             }
         }
@@ -381,6 +387,7 @@ public class GameManager : MonoBehaviour
             {
                 currentSaveData.gameMonth += 1;
                 currentSaveData.gameDay = 1;
+                CheckMaintenance();
                 SaveAllData();
             }
         }
@@ -391,6 +398,7 @@ public class GameManager : MonoBehaviour
             {
                 currentSaveData.gameMonth += 1;
                 currentSaveData.gameDay = 1;
+                CheckMaintenance();
                 SaveAllData();
             }
         }
@@ -399,10 +407,12 @@ public class GameManager : MonoBehaviour
         {
             currentSaveData.gameMonth = 1;
             currentSaveData.gameYear += 1;
+            CheckMaintenance();
             SkaterManager.Instance.AgeHelp();
             SaveAllData();
         }
 
+        CheckMoneyNum();
     }
     #endregion
 
@@ -535,6 +545,68 @@ public class GameManager : MonoBehaviour
         {
             currentSaveData.activeComps.Remove(f);
         }
+    }
+    #endregion
+
+    #region 检查金币是否少于10000
+    private void CheckMoneyNum()
+    {
+        if (currentSaveData.moneyIsOver) return;
+        if (currentSaveData.money <= 10000)
+        {
+            List<string> msg = new List<string> { "你的钱很快就用完了呢...还请多多注意金钱的使用,你父亲只会给你这一次资助.", "获得资助30000" };
+            currentSaveData.money += 30000;
+            currentSaveData.moneyIsOver = true;
+            PopupManager.Instance.MessagePop(msg);
+        }
+    }
+    #endregion
+
+    #region 维护费
+    private void CheckMaintenance()
+    {
+        int cost = 0; // 要初始化
+
+        // 选手工资（年龄判断顺序要反过来，大的先判）
+        foreach (var item in currentSaveData.Skaters)
+        {
+            if (item.age > 16) cost += 100;
+            else if (item.age > 8) cost += 10;
+        }
+
+        // 建筑维护（StructSaveData 里没有 price，要查 config）
+        foreach (var item in currentSaveData.structures)
+        {
+            StructConfig config = StructManager.Instance.GetConfigByID(item.structID);
+            if (config != null) cost += (int)(config.price * 0.0001f); // 建造费的1%作为日维护
+        }
+
+        // 俱乐部等级维护
+        switch (currentSaveData.club.clubLevel)
+        {
+            case ClubType.Low: cost += 50; break;
+            case ClubType.Middle: cost += 150; break;
+            case ClubType.High: cost += 300; break;
+            case ClubType.Perfect: cost += 500; break;
+        }
+        int k = 0;
+        if (currentSaveData.gameMonth - 1 == 1 || currentSaveData.gameMonth - 1 == 3 || currentSaveData.gameMonth - 1 == 5 || currentSaveData.gameMonth - 1 == 7 || currentSaveData.gameMonth - 1 == 8 || currentSaveData.gameMonth - 1 == 10 || currentSaveData.gameMonth - 1 == 0)
+            k = 31;
+        else if (currentSaveData.gameMonth - 1 == 2)
+            k = 28;
+        else if (currentSaveData.gameMonth-1 == 4 || currentSaveData.gameMonth-1 == 6 || currentSaveData.gameMonth-1 == 9 || currentSaveData.gameMonth-1 == 11)
+            k = 30;
+        cost *= k;
+            currentSaveData.money -= cost;
+        List<string> msg = new List<string> { $"上个月的维护费为{cost}" };
+        PopupManager.Instance.MessagePop(msg);
+        StartCoroutine(closePopManager());
+    }
+
+    IEnumerator closePopManager()
+    {
+        yield return new WaitForSeconds(2f);
+        PopupManager.Instance.ClosePop();
     }
     #endregion
 }

@@ -183,24 +183,31 @@ public class StructManager : MonoBehaviour
             return;
         }
 
-        // 扣钱
-        GameManager.Instance.currentSaveData.money -= config.price;
-        UIManager.Instance?.RefreshUI();
+        PopupManager.Instance.ChoicePop($"确定要花费{config.price}建造{config.structName}吗?", "确定", "取消",
+            () =>
+            {
+                // 扣钱
+                GameManager.Instance.currentSaveData.money -= config.price;
+                UIManager.Instance?.RefreshUI();
 
-        // 存档
-        StructSaveData save = new StructSaveData();
-        save.structID = config.structID;
-        save.slotIndex = currentSlotIndex;
-        GameManager.Instance.currentSaveData.structures.Add(save);
+                // 存档
+                StructSaveData save = new StructSaveData();
+                save.structID = config.structID;
+                save.slotIndex = currentSlotIndex;
+                GameManager.Instance.currentSaveData.structures.Add(save);
 
-        // 坑位显示建筑
-        slots[currentSlotIndex].Build(config);
+                // 坑位显示建筑
+                slots[currentSlotIndex].Build(config);
 
-        // 关面板
-        CloseBuildPanel();
+                // 关面板
+                CloseBuildPanel();
 
-        List<string> successMsg = new List<string> { $"成功建造了{config.structName}!" };
-        PopupManager.Instance.MessagePop(successMsg);
+                List<string> successMsg = new List<string> { $"成功建造了{config.structName}!" };
+                PopupManager.Instance.MessagePop(successMsg);
+            }, () =>
+            {
+                CloseBuildPanel();
+            });       
     }
 
     // ===== 拆除 =====

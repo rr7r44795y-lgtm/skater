@@ -17,7 +17,7 @@ public class WalManager : MonoBehaviour
     public static List<string> RoleName = new List<string>();
 
     private Skater skater;
-    private int MaxCustom = 25;
+    private int MaxCustom;
     public static int CurrentCustom;
 
     void Start()
@@ -32,7 +32,7 @@ public class WalManager : MonoBehaviour
         {
             foreach (Skater skater in GameManager.Instance.currentSaveData.Skaters)
             {
-                if (!RoleName.Contains(skater.name))
+                if (!RoleName.Contains(skater.name)&&!(skater.isCompeting) )
                 {
                     CopyPrefab(skater);
                     RoleName.Add(skater.name);
@@ -47,6 +47,7 @@ public class WalManager : MonoBehaviour
         while (true)
         {
             yield return new WaitForSeconds(Random.Range(1f, 3f));
+            MaxCustom = Mathf.Max(GameManager.Instance.currentSaveData.structures.Count * 10,25);
             if (GameManager.isPause) continue;
             int count = Random.Range(1, 5);
             for (int i = 0; i < count; i++)
