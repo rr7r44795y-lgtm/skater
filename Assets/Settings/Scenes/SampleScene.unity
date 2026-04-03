@@ -6710,6 +6710,7 @@ MonoBehaviour:
     gameYear: 0
     money: 0
     newGame: 1
+    moneyIsOver: 0
     createType: 3
     club:
       clubLevel: 0
@@ -29020,7 +29021,7 @@ MonoBehaviour:
   DeletList: []
   lowMoney: 30000
   middleMoney: 50000
-  highMoney: 10000
+  highMoney: 100000
   lowDay: 30
   middleDay: 45
   highDay: 90

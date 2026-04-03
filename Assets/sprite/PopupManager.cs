@@ -379,6 +379,12 @@ public class PopupManager : MonoBehaviour
     #endregion
 
     #region 公共方法
+
+    public void ClosePop()
+    {
+        ClosedPanel();
+    }
+
     private void TryHideMask()
     {
         if (skaterInfoPanel.activeSelf) return;
