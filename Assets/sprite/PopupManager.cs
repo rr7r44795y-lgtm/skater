@@ -17,7 +17,7 @@ public class PopupManager : MonoBehaviour
     [Header("属性面板")]
     [SerializeField] private GameObject skaterInfoPanel;
     [SerializeField] private GameObject MessagePopRoot;
-    [SerializeField] private GameObject MaskPanel;
+    [SerializeField] public GameObject MaskPanel;
     [SerializeField] private GameObject SkaterInfoMaskPanel;
     [SerializeField] private TextMeshProUGUI jumpText;
     [SerializeField] private TextMeshProUGUI spinText;

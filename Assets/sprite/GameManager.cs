@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using UnityEngine;
 using Random = UnityEngine.Random;
+using UnityEngine.UI;
 
 [Serializable]
 public class Skater
@@ -606,7 +607,7 @@ public class GameManager : MonoBehaviour
     IEnumerator closePopManager()
     {
         yield return new WaitForSeconds(2f);
-        PopupManager.Instance.ClosePop();
+        PopupManager.Instance.MaskPanel.GetComponent<Button>().onClick.Invoke();
     }
     #endregion
 }

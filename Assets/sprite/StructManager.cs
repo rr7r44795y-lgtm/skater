@@ -87,7 +87,7 @@ public class StructManager : MonoBehaviour
     // ===== 读取配置 =====
     private void LoadConfig()
     {
-        TextAsset json = Resources.Load<TextAsset>("Structures");
+        TextAsset json = Resources.Load<TextAsset>("Sprites/Struct/Structures");
         if (json != null)
             configData = JsonUtility.FromJson<StructConfigList>(json.text);
     }
